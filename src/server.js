@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors")
 const newCart = require("./cart/index")
 const products = require("./products/index")
+const users = require("./users/index")
+const admin = require("./admin/index")
 
 
 
@@ -16,6 +18,8 @@ server.use(cors());
 server.use(express.json());
 server.use("/cart", newCart)
 server.use("/product", products)
+server.use("/users", users)
+server.use("/admin" , admin)
 
 
 

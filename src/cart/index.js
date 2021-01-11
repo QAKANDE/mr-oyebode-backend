@@ -7,20 +7,20 @@ const { findByIdAndUpdate } = require("./schema");
 const shortId = require("short-id")
 const idsModel = require("./idModel")
 
-const generateId = () => {
-var i
-  for (i = 0; i < 100; i++) {
-  shortId.configure({
-      length: 24,          
-      algorithm: 'sha1',   
-    });
-    const id = shortId.generate()
-    // const idss = await idsModel()
-    // idss._id = objectId(id)
-    // const ress = await idss.save()
+// const generateId = () => {
+// var i
+//   for (i = 0; i < 100; i++) {
+//   shortId.configure({
+//       length: 24,          
+//       algorithm: 'sha1',   
+//     });
+//     const id = shortId.generate()
+//     // const idss = await idsModel()
+//     // idss._id = objectId(id)
+//     // const ress = await idss.save()
 
-}
-}
+// }
+// }
 
 router.post("/cart/:userId", async (req, res) => {
     const { productId, quantity, name, price } = req.body;
