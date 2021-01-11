@@ -1,8 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors")
-const newCart = require("./newCart/index")
-const cart = require("./cart/index")
+const newCart = require("./cart/index")
 const products = require("./products/index")
 
 
@@ -10,8 +9,6 @@ const products = require("./products/index")
 
 const server = express();
 const port = process.env.PORT || 3003;
-
-
 
 
 

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -r dotenv/config ./src/server.js" , 
+    "dev": "nodemon -r dotenv/config ./src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "html-pdf": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.11",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "short-id": "0.1.0-1"
   }
 }
