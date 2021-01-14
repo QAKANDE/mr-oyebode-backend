@@ -6,6 +6,7 @@ const objectId = require('mongodb').ObjectID;
 const { findByIdAndUpdate } = require("./schema");
 const shortId = require("short-id")
 const idsModel = require("./idModel")
+var mongoose = require('mongoose');
 
 // const generateId = () => {
 // var i
@@ -21,6 +22,28 @@ const idsModel = require("./idModel")
 
 // }
 // }
+
+//  let i 
+
+//   for (i = 0; i < 100; i++){
+//     var id = new mongoose.mongo.ObjectId();
+//    const idss = await idsModel()
+//     idss._id = objectId(id)
+//   const ress = await idss.save()
+//   }
+//   res.send("sucess")
+
+router.get("/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const cartperUser = await cartModel.findOne({ userId });
+  if (cartperUser) {
+    res.send(cartperUser)
+  }
+  else {
+    res.send("No Items In Cart")
+  }
+})
+
 
 router.post("/cart/:userId", async (req, res) => {
     const { productId, quantity, name, price } = req.body;
@@ -66,13 +89,17 @@ router.post("/cart/:userId", async (req, res) => {
   }
 });
 
-
-router.post("/check-out-as-guest", async (req, res) => {
-
+router.get("/guest/guest-token", async (req, res) => {
   const tokenArray = []
   const tokens = await idsModel.find()
-  const { productId, quantity, name, price } = req.body;
-  const userId = tokens[0]._id
+  const guestToken = tokens[0]._id
+  res.send(guestToken)
+
+})
+router.post("/check-out-as-guest", async (req, res) => {
+
+  const { productId, quantity, name, price  , userId} = req.body;
+  
     const total = parseInt(price * req.body.quantity)
   try {
     let cart = await cartModel.findOne({ userId });
@@ -82,12 +109,16 @@ router.post("/check-out-as-guest", async (req, res) => {
 
       if (itemIndex > -1) { 
         let productItem = cart.products[itemIndex];
-        productItem.quantity++;
+        productItem.quantity = quantity;
         newTotal = parseInt(productItem.quantity * productItem.price)
         productItem.total = newTotal
         cart.products[itemIndex] = productItem;
-      } else {
-       
+        // let productItem = cart.products[itemIndex];
+        // productItem.quantity++;
+        // newTotal = parseInt(productItem.quantity * productItem.price)
+        // productItem.total = newTotal
+        // cart.products[itemIndex] = productItem;
+      } else {  
           cart.products.push({ productId, quantity, name, price, total });
       }
         cart = await cart.save();
@@ -109,6 +140,33 @@ router.post("/check-out-as-guest", async (req, res) => {
     res.status(500).send("Something went wrong");
   }
 })
+
+
+// router.put("/increase-item-quantity", async (req, res) => {
+//   try {
+//     const cart = await cartModel.find()
+//  cartupdate( // select your doc in moongo
+//     { }, // your query, usually match by _id
+//     {
+//       $pull: {
+//         products: {
+//           $elemMatch: {
+//             productId: "5ffd1bd77298ed5e04ed0076", quantity: 7,
+//             name : "jumper" , price : 34 , total : 238
+//           }
+//         }
+//       }
+//     }, // item(s) to match from array you want to pull/remove
+//  // set this to true if you want to remove multiple elements.
+// )
+    
+//   } catch (error) {
+//     console.log(error)
+//   }
+//   // const item = await cart.updateOne( {cn: req.body.id}, { $pullAll: {_id: ["5fffb5fb9570dc5d3051207b"] } } )
+// });
+
+
 
 router.delete("/guest-cart-token-delete", async (req, res) => {
   const tokenToBeDeleted = await idsModel.findByIdAndDelete(req.body.token)

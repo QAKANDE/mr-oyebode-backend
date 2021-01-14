@@ -1,35 +1,32 @@
 const router = require("express").Router();
+const productModel = require("./schema")
 
-const { calculateTotal,
-    increaseQuantity,
-    decreaseQuantity,
-    products, productById,
-    createProduct,
-    removeProduct } = require("./functions")
-
-
-router.get("/", products);
 
 router.get("/", async (req, res) => {
-    const allProducts = await products()
-    res.json(allProducts)
-})
-
+    const products = await productModel.find()
+    res.send (products)
+});
 
 router.get("/:id", async (req, res) => {
-    const foundProduct = await productById(req.params.id)
+    const foundProduct = await productModel.findById(req.params.id)
     res.json(foundProduct)
 });
 
 
 router.post("/newproduct", async (req, res) => {
-    const newProduct = await createProduct(req.body)
-    res.send(newProduct)
+  try {
+    const newProduct = new productModel(req.body);
+ await newProduct.save();
+   res.json("Cretaed")
+  } catch (error) {
+    console.log(error);
+  }
 })
 
 
 router.delete("/:id", async (req, res) => {
-    const productToBeDeleted = await removeProduct(req.params.id)
+    const productToBeDeleted = await productModel.findByIdAndDelete(req.params.id)
+    res.send("Deleted")
 })
 
 
