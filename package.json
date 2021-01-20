@@ -20,6 +20,8 @@
   "homepage": "https://github.com/QAKANDE/mr-oyebode-backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cloudinary": "^1.23.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
@@ -28,7 +30,9 @@
     "html-pdf": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.11",
+    "multer": "^1.4.2",
     "nodemon": "^2.0.7",
-    "short-id": "0.1.0-1"
+    "short-id": "0.1.0-1",
+    "stripe": "^8.131.1"
   }
 }
