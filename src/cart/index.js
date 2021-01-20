@@ -96,7 +96,16 @@ router.get("/guest/guest-token", async(req, res) => {
     res.send(guestToken);
 });
 router.post("/check-out-as-guest", async(req, res) => {
-    const { productId, quantity, name, price, userId } = req.body;
+    const {
+        productId,
+        quantity,
+        image,
+        name,
+        size,
+        color,
+        price,
+        userId,
+    } = req.body;
 
     const total = parseInt(price * req.body.quantity);
     try {
@@ -117,7 +126,16 @@ router.post("/check-out-as-guest", async(req, res) => {
                 // productItem.total = newTotal
                 // cart.products[itemIndex] = productItem;
             } else {
-                cart.products.push({ productId, quantity, name, price, total });
+                cart.products.push({
+                    productId,
+                    quantity,
+                    image,
+                    name,
+                    size,
+                    color,
+                    price,
+                    total,
+                });
             }
             cart = await cart.save();
             newSubTotal = cart.products
@@ -130,7 +148,9 @@ router.post("/check-out-as-guest", async(req, res) => {
         } else {
             const newCart = await cartModel.create({
                 userId,
-                products: [{ productId, quantity, name, price, total }],
+                products: [
+                    { productId, quantity, image, name, size, color, price, total },
+                ],
             });
 
             return res.status(201).send(newCart);

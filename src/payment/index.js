@@ -4,6 +4,8 @@ const stripe = require("stripe")(
 );
 const stripeModel = require("./schema");
 const objectId = require("mongodb").ObjectID;
+const cartModel = require("../cart/schema");
+const guestModel = require("../cart/idModel");
 var mongoose = require("mongoose");
 
 router.post("/create-product-price", async(req, res) => {
@@ -58,7 +60,7 @@ router.post("/create-checkout-session", async(req, res) => {
             arr.push(priceDetails);
         }
         const session = await stripe.checkout.sessions.create({
-            success_url: "https://example.com/success",
+            success_url: "http://localhost:3000/paymentsuccessful",
             cancel_url: "https://example.com/cancel",
             payment_method_types: ["card"],
             line_items: arr,
@@ -66,6 +68,20 @@ router.post("/create-checkout-session", async(req, res) => {
         });
 
         res.json({ id: session.id });
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.delete("/delete-payment-price-and-cart", async(req, res) => {
+    try {
+        const { userId } = req.body;
+        const stripePrices = await stripeModel.findOne({ userId });
+        const cart = await cartModel.findOne({ userId });
+        const deleteStripe = await stripeModel.findByIdAndDelete(stripePrices._id);
+        const deleteCart = await cartModel.findByIdAndDelete(cart._id);
+        const deleteGuestToken = await guestModel.findByIdAndDelete(userId);
+        res.send("Deleted");
     } catch (error) {
         console.log(error);
     }
