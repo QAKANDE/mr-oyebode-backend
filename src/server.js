@@ -14,8 +14,8 @@ const order = require("./orders/index");
 const server = express();
 const port = process.env.PORT || 3001;
 
-server.use(bodyParser.urlencoded({ extended: true }));
-server.use(bodyParser.json());
+// server.use(bodyParser.urlencoded({ extended: true }));
+// server.use(bodyParser.json());
 server.use(cors());
 server.use(express.json());
 server.use("/cart", newCart);

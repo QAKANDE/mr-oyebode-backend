@@ -4,8 +4,36 @@ const cartModel = require("../cart/schema");
 
 router.get("/orders", async(req, res) => {
     try {
+        notDeliveredArray = [];
+        deliveredArray = [];
+
         const allOrders = await orderModel.find();
-        res.send(allOrders);
+
+        res.json(allOrders);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.get("/search-orders-by-customerid", async(req, res) => {
+    try {
+        const { customerId } = req.body;
+        const allOrders = await orderModel.find();
+        const filteredOrderByCustomerId = allOrders.filter(
+            (order) => order.customerId === customerId
+        );
+        res.send(filteredOrder);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.get("/search-orders-by-date", async(req, res) => {
+    try {
+        const { date } = req.body;
+        const allOrders = await orderModel.find();
+        const filteredByDate = allOrders.filter((order) => order.date === date);
+        res.send(filteredByDate);
     } catch (error) {
         console.log(error);
     }
@@ -51,17 +79,25 @@ router.post("/new-order", async(req, res) => {
                 country: country,
                 postCode: postCode,
             },
+
             product: cartArr,
             date: new Date().toDateString(),
             time: new Date().getHours() + ":" + new Date().getMinutes(),
             subTotal: subTotal,
         });
         if (newOrder) {
-            res.status(200).send(newOrder);
+            console.log(typeof newOrder);
         } else {
             res.statusMessage("Something went wrong ");
         }
     }
+});
+
+router.put("/changeOrderStatus/:orderId", async(req, res) => {
+    const allOrders = await orderModel.findByIdAndUpdate(req.params.orderId, {
+        status: "Delivered",
+    });
+    res.send("Status changed");
 });
 
 module.exports = router;
