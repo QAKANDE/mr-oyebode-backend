@@ -86,7 +86,7 @@ router.post("/new-order", async(req, res) => {
             subTotal: subTotal,
         });
         if (newOrder) {
-            console.log(typeof newOrder);
+            res.send(newOrder);
         } else {
             res.statusMessage("Something went wrong ");
         }

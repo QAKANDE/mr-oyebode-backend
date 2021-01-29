@@ -2,18 +2,13 @@ const { model, Schema } = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const profileSchema = new Schema({
-    firstName: { type: String, required: true },
-    lastName: {
-        type: String,
-        required: true,
-    },
+    userName: { type: String, required: true },
     email: {
         type: String,
         required: true,
         validate: {
             validator: async function(email) {
                 const user = await profileModel.find({ email: email });
-                console.log(user);
                 if (user.length > 0) {
                     let error = new Error();
                     error.message = "THIS EMAIL ALREADY EXISTS";
@@ -27,18 +22,10 @@ const profileSchema = new Schema({
         type: Number,
         required: true,
     },
-    gender: {
-        type: String,
-        required: true,
-    },
     password: {
         type: String,
         required: true,
         minlength: 7,
-    },
-    dateOfBirth: {
-        type: String,
-        required: true,
     },
 }, { timestamps: true });
 profileSchema.statics.findByCredentials = async(email, password) => {

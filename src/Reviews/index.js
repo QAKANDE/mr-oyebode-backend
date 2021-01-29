@@ -3,17 +3,23 @@ const reviewModel = require("./schema");
 const productModel = require("../products/schema");
 const objectId = require("mongodb").ObjectID;
 
+const zeros = (i) => {
+    if (i < 10) {
+        return "0" + i;
+    } else {
+        return i;
+    }
+};
+
 router.get("/", async(req, res) => {
     const reviews = await reviewModel.find();
     res.send(reviews);
 });
 
-router.get("/:name", async(req, res) => {
-    const { productId } = req.params.productId;
+router.get("/:productId", async(req, res) => {
     const allReview = await reviewModel.find();
-    const re = await reviewModel.findOne({ productId });
     const findReview = allReview.filter(
-        (review) => review.name === req.params.name
+        (review) => review.productId === req.params.productId
     );
     res.send(findReview);
 });
@@ -28,7 +34,9 @@ router.post("/new-review/", async(req, res) => {
         newReview.name = productName;
         newReview.image = productImage;
         newReview.date = new Date().toDateString();
-        newReview.time = new Date().getHours() + ":" + new Date().getMinutes();
+        newReview.time = zeros(
+            zeros(new Date().getHours()) + ":" + zeros(new Date().getMinutes())
+        );
         newReview.text = req.body.text;
         newReview.email = req.body.email;
         newReview.ratings = req.body.ratings;

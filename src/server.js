@@ -12,7 +12,7 @@ const payment = require("./payment/index");
 const order = require("./orders/index");
 
 const server = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3003;
 
 // server.use(bodyParser.urlencoded({ extended: true }));
 // server.use(bodyParser.json());
