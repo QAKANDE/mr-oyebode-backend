@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const productModel = require("./schema");
+const accessoryModel = require("../accessories/schema");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
@@ -29,6 +30,30 @@ router.get("/", async(req, res) => {
 router.get("/:id", async(req, res) => {
     const foundProduct = await productModel.findById(req.params.id);
     res.send(foundProduct);
+});
+
+router.get("/search/:productName", async(req, res) => {
+    try {
+        const allProducts = await productModel.find();
+        const allAccessories = await accessoryModel.find();
+        const filteredProduct = allProducts.filter(
+            (product) => product.name === req.params.productName
+        );
+        const filteredAccessory = allAccessories.filter(
+            (accessory) => accessory.name === req.params.productName
+        );
+        if (filteredProduct.length !== 0) {
+            res.send(filteredProduct);
+        } else if (filteredAccessory.length !== 0) {
+            res.send(filteredAccessory);
+        } else if (filteredAccessory.length === 0 && filteredProduct.length === 0) {
+            res.json({
+                message: "Not Found",
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
 });
 
 router.post("/newproduct", async(req, res) => {
