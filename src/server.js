@@ -10,6 +10,8 @@ const admin = require("./admin/index");
 const review = require("./Reviews/index");
 const payment = require("./payment/index");
 const order = require("./orders/index");
+const wishList = require("./Wishlist/index");
+const accessories = require("./accessories/index");
 
 const server = express();
 const port = process.env.PORT || 3003;
@@ -25,6 +27,8 @@ server.use("/admin", admin);
 server.use("/reviews", review);
 server.use("/payment", payment);
 server.use("/orders", order);
+server.use("/wishlist", wishList);
+server.use("/accessories", accessories)
 
 mongoose
     .connect("mongodb://localhost:27017/mr-akintunde-e-commerce", {

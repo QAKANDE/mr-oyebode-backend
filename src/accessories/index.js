@@ -1,50 +1,47 @@
 const router = require("express").Router();
-const productModel = require("./schema");
+const accessoriesModel = require("./schema");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
-const configuration = require("../services/middlewares/cloudinary");
-// const storage = multer.diskStorage({
-//     filename: function(req, file, cb) {
-//         console.log(file);
-//         cb(null, file.originalname);
-//     },
-// });
+// const configuration = require("../services/middlewares/cloudinary");
+const { uploadImage } = require("../services/middlewares/cloudinary");
+
 const fileUpload = multer();
-
-// configuration();
-
-// CLOUDINARY_URL = process.env.CLOUDINARY_URL;
-// cloudinary.config({
-//     cloud_name: "quadri",
-//     api_key: process.env.CLOUDINARY_API_KEY,
-//     api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
-// });
-
-router.get("/", async(req, res) => {
-    const products = await productModel.find();
-    res.send(products);
+cloudinary.config({
+    cloud_name: "quadri",
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
 });
 
+router.get("/", async(req, res) => {
+    const accessories = await accessoriesModel.find();
+    res.send(accessories);
+});
 router.get("/:id", async(req, res) => {
-    const foundProduct = await productModel.findById(req.params.id);
-    res.send(foundProduct);
+    const foundAccessory = await accessoriesModel.findById(req.params.id);
+    res.send(foundAccessory);
 });
 
 router.post("/newproduct", async(req, res) => {
     try {
-        const newProduct = new productModel(req.body);
-        await newProduct.save();
-
-        res.json("Cretaed");
+        const { name, price, image, description, color, size } = req.body;
+        const newAccessory = new accessoriesModel();
+        newAccessory.name = name;
+        newAccessory.price = price;
+        newAccessory.image = image;
+        newAccessory.description = description;
+        newAccessory.color = color;
+        newAccessory.size = size;
+        await newAccessory.save();
+        res.json(newAccessory._id);
     } catch (error) {
+        res.status(400).send("Bad Request");
         console.log(error);
     }
 });
-
 router.post(
-    "/product-image",
-    fileUpload.single("productImage"),
+    "/accessories-image",
+    fileUpload.single("accessoriesImage"),
     async(req, res) => {
         try {
             let streamUpload = (req) => {
@@ -53,6 +50,7 @@ router.post(
                         if (result) {
                             resolve(result);
                         } else {
+                            console.log(error);
                             reject(error);
                         }
                     });
@@ -65,17 +63,15 @@ router.post(
                 let result = await streamUpload(req);
                 res.send(result.url);
             }
-
             upload(req);
         } catch (error) {
             console.log(error);
         }
     }
 );
-
-router.put("/edit-product/:id", async(req, res) => {
+router.put("/edit-accessory/:id", async(req, res) => {
     const { name, price, image, description, color, size } = req.body;
-    const edit = await productModel.findByIdAndUpdate(req.params.id, {
+    const edit = await accessoriesModel.findByIdAndUpdate(req.params.id, {
         name: name,
         price: price,
         image: image,
@@ -84,15 +80,14 @@ router.put("/edit-product/:id", async(req, res) => {
         size: size,
     });
     if (edit) {
-        console.log("edited");
-        res.send("Product Edited ");
+        res.send("Accessory Edited");
     } else {
-        console.log("Something wromg");
+        res.status(400).send("Bad Request");
     }
 });
 
 router.delete("/:id", async(req, res) => {
-    const productToBeDeleted = await productModel.findByIdAndDelete(
+    const accessoryToBeDeleted = await accessoriesModel.findByIdAndDelete(
         req.params.id
     );
     res.send("Deleted");

@@ -26,9 +26,9 @@ const cart2Schema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-cart2Schema.pre("save", async function(next) {
-    this.totalItems = this.products.length;
-    next();
-});
+// cart2Schema.pre("save", async function(next) {
+//     this.totalItems = this.products.length;
+//     next();
+// });
 
 module.exports = mongoose.model("cart2", cart2Schema);

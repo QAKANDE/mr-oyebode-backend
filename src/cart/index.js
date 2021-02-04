@@ -93,22 +93,28 @@ router.get("/guest/guest-token", async(req, res) => {
     const tokenArray = [];
     const tokens = await idsModel.find();
     const guestToken = tokens[0]._id;
+    // const deleteToken = await idsModel.findByIdAndDelete(tokens[0]._id);
     res.send(guestToken);
+    // const newId = await new idsModel();
+    // newId.user = "guestUser";
+    // res.json({
+    //     id: newId._id,
+    // });
 });
 router.post("/check-out-as-guest", async(req, res) => {
-    const {
-        productId,
-        quantity,
-        image,
-        name,
-        size,
-        color,
-        price,
-        userId,
-    } = req.body;
-
-    const total = parseInt(price * req.body.quantity);
     try {
+        const {
+            productId,
+            quantity,
+            image,
+            name,
+            size,
+            color,
+            price,
+            userId,
+        } = req.body;
+
+        const total = parseInt(price * req.body.quantity);
         let cart = await cartModel.findOne({ userId });
 
         if (cart) {
@@ -138,6 +144,9 @@ router.post("/check-out-as-guest", async(req, res) => {
                 });
             }
             cart = await cart.save();
+            await cartModel.findByIdAndUpdate(cart._id, {
+                totalItems: cart.products.length,
+            });
             newSubTotal = cart.products
                 .map((item) => item.total)
                 .reduce((acc, next) => acc + next);
@@ -164,8 +173,14 @@ router.post("/check-out-as-guest", async(req, res) => {
 router.delete("/delete-item/:userId/:productId", async(req, res) => {
     const { user } = req.params.userId;
     const cart = await cartModel.findOne({ user });
+    previousTotalItems = cart.totalItems;
+
+    // await cartModel.findByIdAndUpdate(cart._id, {
+    //     totalItems: previousTotalItems - 1,
+    // });
     cartModel.findOneAndUpdate({ _id: cart._id }, {
             $pull: { products: { _id: req.params.productId } },
+            totalItems: previousTotalItems - 1,
         },
         false,
         function(err, data) {
@@ -176,21 +191,6 @@ router.delete("/delete-item/:userId/:productId", async(req, res) => {
             }
         }
     );
-
-    // cart.products.map((prod) => {
-    //     return itemsArray.push(prod);
-    // });
-    // const items = itemsArray.filter(
-    //     (item) => item.productId === "5ffd1bff7298ed5e04ed0077"
-    // );
-    // const index = itemsArray.indexOf(items[0]);
-    // if (index > -1) {
-    //     itemsArray.splice(index, 1);
-    //     console.log(itemsArray);
-    // } else {
-    //     console.log("not wok");
-    //     console.log(index);
-    // }
 });
 
 router.delete("/guest-cart-token-delete", async(req, res) => {
@@ -211,4 +211,3 @@ router.delete("user-cart-delete", async(req, res) => {
 });
 
 module.exports = router;
-("");

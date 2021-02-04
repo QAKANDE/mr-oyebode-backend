@@ -26,20 +26,23 @@ router.get("/:productId", async(req, res) => {
 
 router.post("/new-review/", async(req, res) => {
     try {
+        const { productId, text, width, email, ratings } = req.body;
+
         const products = await productModel.findById(req.body.productId);
         const productName = products.name;
         const productImage = products.image;
         const newReview = new reviewModel();
-        newReview.productId = req.body.productId;
+        newReview.productId = productId;
         newReview.name = productName;
         newReview.image = productImage;
         newReview.date = new Date().toDateString();
         newReview.time = zeros(
             zeros(new Date().getHours()) + ":" + zeros(new Date().getMinutes())
         );
-        newReview.text = req.body.text;
-        newReview.email = req.body.email;
-        newReview.ratings = req.body.ratings;
+        newReview.text = text;
+        newReview.width = width;
+        newReview.email = email;
+        newReview.ratings = ratings;
         const reviewSaved = await newReview.save();
         res.send("Review Created");
     } catch (error) {

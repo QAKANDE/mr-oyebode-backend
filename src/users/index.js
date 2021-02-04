@@ -32,7 +32,7 @@ router.get("/:id", async(req, res) => {
 
 router.get("/user-order/:userId", async(req, res) => {
     try {
-        const { id } = req.params.userId
+        const { id } = req.params.userId;
         const order = await userOrderModel.findOne({ id });
         if (!order) {
             res.json({
@@ -102,7 +102,25 @@ router.post("/register", async(req, res, next) => {
         const { _id } = await newUser.save();
         res.status(201).send(_id);
     } catch (error) {
-        next(error);
+        console.log(error);
+    }
+});
+
+router.post("/guest-token-already-exists/:guestToken", async(req, res) => {
+    try {
+        const { userName, email, phoneNumber, password } = req.body;
+
+        const newUser = new profileModel();
+        newUser._id = objectId(req.params.guestToken);
+        newUser.userName = userName;
+        newUser.email = email;
+        newUser.phoneNumber = phoneNumber;
+        newUser.password = password;
+        const userSentToApi = await newUser.save();
+        res.status(201).send(userSentToApi);
+    } catch (error) {
+        res.status(400).send("Bad Request");
+        console.log(error);
     }
 });
 

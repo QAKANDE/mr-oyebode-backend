@@ -20,6 +20,10 @@ const reviewSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    width: {
+        type: String,
+        required: true,
+    },
     ratings: {
         type: Number,
         default: 1,
