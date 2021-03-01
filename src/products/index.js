@@ -57,11 +57,27 @@ router.get("/search/:productName", async(req, res) => {
 });
 
 router.post("/newproduct", async(req, res) => {
+    const { name, price, image, description, color, sizeAsString, size } = req.body;
+    const sizeArr = size.split("")
     try {
-        const newProduct = new productModel(req.body);
-        await newProduct.save();
 
-        res.json("Cretaed");
+        const newProduct = await productModel.create({
+            name,
+            price,
+            image,
+            description,
+            color,
+            sizeAsString,
+            sizes: sizeArr
+        });
+        if (newProduct) {
+            res.send(newProduct)
+
+        } else {
+            res.status(400).json({
+                message: "Bad request"
+            })
+        }
     } catch (error) {
         console.log(error);
     }

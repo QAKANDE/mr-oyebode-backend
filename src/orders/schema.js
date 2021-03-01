@@ -1,4 +1,3 @@
-// const { model, Schema , Mongoose } = require("mongoose");
 const mongoose = require("mongoose");
 const orderSchema = new mongoose.Schema({
     customerId: { type: String, required: true },

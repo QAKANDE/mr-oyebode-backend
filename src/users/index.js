@@ -4,6 +4,9 @@ const profileModel = require("../users/schema");
 const addressModel = require("../users/addressSchema");
 const objectId = require("mongodb").ObjectID;
 const cartModel = require("../cart/schema");
+const bcrypt = require("bcryptjs");
+const shortId = require("short-id");
+const resetPasswordTokenModel = require("./resetPasswordSchema");
 const userOrderModel = require("./ordersSchema");
 const {
     authenticate,
@@ -11,6 +14,8 @@ const {
     generateToken,
 } = require("../users/authTools");
 const { authorize } = require("../services/middlewares/authorize");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.get("/", async(req, res, next) => {
     try {
@@ -158,11 +163,122 @@ router.post("/login", async(req, res, next) => {
     }
 });
 
+router.post("/reset-password/:token/:email", async(req, res) => {
+    try {
+        const { password } = req.body;
+
+        const resetTokens = await resetPasswordTokenModel.find();
+        const foundUserToken = resetTokens.filter(
+            (token) => token.email === req.params.email
+        );
+
+        if (foundUserToken.length !== 0) {
+            if (foundUserToken[0].token === req.params.token) {
+                const users = await profileModel.find();
+                const filteredUser = users.filter(
+                    (user) => user.email === req.params.email
+                );
+                const newPassword = await bcrypt.hash(password, 8);
+                const foundUserId = await profileModel.findByIdAndUpdate(
+                    filteredUser[0]._id, {
+                        password: newPassword,
+                    }
+                );
+
+                if (foundUserId) {
+                    res.json({
+                        message: "Password updated",
+                    });
+                } else {
+                    res.json({
+                        message: "An error occured",
+                    });
+                }
+            } else if (!foundUserToken) {
+                res.json({
+                    message: "Invalid token",
+                });
+            }
+        } else {
+            res.json({
+                message: "User Not Found",
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.post("/send-reset-password-to-email/:email", async(req, res) => {
+    try {
+        shortId.configure({
+            length: 24,
+            algorithm: "sha1",
+        });
+        const token = shortId.generate();
+        const users = await profileModel.find();
+        const filteredUser = users.filter(
+            (user) => user.email === req.params.email
+        );
+        if (filteredUser.length !== 0) {
+            const msg = {
+                to: req.params.email, // Change to your recipient
+                from: "u1945140@uel.ac.uk", // Change to your verified sender
+                subject: "Reset Password",
+                text: `Hello ${filteredUser[0].userName} , here's your access token ${filteredUser[0].userName}`,
+                html: `
+                <strong>Hello ${filteredUser[0].userName} , reset your password <a clicktracking=off  href="http://localhost:3000/updatePassword/${token}/${filteredUser[0].email}"> here</a>
+                </strong>
+                <div>
+                 <img src = "https://res.cloudinary.com/quadri/image/upload/v1612584676/logo_trademark_prz1fd.png" width = "50%" / > 
+                </div>`,
+            };
+            sgMail
+                .send(msg)
+                .then(async() => {
+                    const resetPasswordToken = await new resetPasswordTokenModel();
+                    resetPasswordToken.email = filteredUser[0].email;
+                    resetPasswordToken.token = token;
+                    await resetPasswordToken.save();
+                    res.json({ message: "Email sent successfully" });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        } else {
+            res.json({
+                message: "User does not exist",
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
+
 router.get("/:email", authorize, async(req, res, next) => {
     try {
         const user = await profileModel.find();
         const filteredUser = user.filter((user) => user.email === req.params.email);
         res.send(filteredUser[0]);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.delete("/delete-reset-token/:email", async(req, res) => {
+    try {
+        const resetTokens = await resetPasswordTokenModel.find();
+        const foundUserToken = resetTokens.filter(
+            (token) => token.email === req.params.email
+        );
+        const deleteToken = await resetPasswordTokenModel.findByIdAndDelete(
+            foundUserToken[0]._id
+        );
+        if (deleteToken) {
+            res.json({
+                message: "Deleted",
+            });
+        }
     } catch (error) {
         console.log(error);
     }

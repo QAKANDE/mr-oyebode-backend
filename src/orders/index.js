@@ -1,8 +1,21 @@
 const router = require("express").Router();
 const orderModel = require("./schema");
 const cartModel = require("../cart/schema");
+const ejs = require("ejs");
+const pdf = require("html-pdf");
+const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-router.get("/orders", async(req, res) => {
+CLOUDINARY_URL = process.env.CLOUDINARY_URL;
+cloudinary.config({
+    cloud_name: "quadri",
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
+});
+
+router.get("/", async(req, res) => {
     try {
         notDeliveredArray = [];
         deliveredArray = [];
@@ -90,6 +103,37 @@ router.post("/new-order", async(req, res) => {
         } else {
             res.statusMessage("Something went wrong ");
         }
+    }
+});
+
+router.post("/send-order-confirmation/:custId", async(req, res) => {
+    try {
+        const products = [];
+        const allOrders = await orderModel.find();
+        const orderDetails = allOrders.filter(
+            (order) => order.customerId === req.params.custId
+        );
+        if (orderDetails.length !== 0) {
+            const msg = {
+                to: req.params.custId, // Change to your recipient
+                from: "u1945140@uel.ac.uk", // Change to your verified sender
+                subject: "Order acknowledgement",
+
+                html: `<div>{{#each orderDetails[0].product}}<div>{{this.size}}</div>{{/each}}</div>`,
+            };
+            sgMail
+                .send(msg)
+                .then(async() => {
+                    res.json({
+                        message: "Order Details Sent",
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+    } catch (error) {
+        console.log(error);
     }
 });
 

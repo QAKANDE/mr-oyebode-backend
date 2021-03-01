@@ -1,0 +1,52 @@
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600&display=swap');
+        .header,
+        span,
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        div {
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 2rem;
+        }
+        
+        .text {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width: 85%; margin: 0 7.5%;">
+        <div style="text-align: center; padding-left: 50px;">
+            <h3>Student Report</h5>
+                <table>
+                    <% if (orderDetails.products > 0) { %>
+                        <% orderDetails.products.forEach(product => {%>
+                            <tr>
+                                <td>
+                                    <%= product.name %>
+                                </td>
+                                <td>
+                                    <%= product.price %>
+                                </td>
+                                <td>
+                                    <%= product.size %>
+                                </td>
+                                <td>
+                                    <%=product.color %>
+                                </td>
+                            </tr>
+                            <%  });%>
+                                <% }%>
+                </table>
+        </div>
+    </div>
+</body>
+
+</html>

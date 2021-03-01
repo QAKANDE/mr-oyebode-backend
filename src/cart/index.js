@@ -46,7 +46,7 @@ router.get("/:userId", async(req, res) => {
 router.post("/cart/:userId", async(req, res) => {
     const { productId, quantity, name, price } = req.body;
     const total = parseInt(price * req.body.quantity);
-    const userId = req.params.userId; //TODO: the logged in user id
+    const userId = req.params.userId;
 
     try {
         let cart = await cartModel.findOne({ userId });
@@ -111,62 +111,163 @@ router.post("/check-out-as-guest", async(req, res) => {
             size,
             color,
             price,
+            sizeFromClient,
             userId,
         } = req.body;
 
-        const total = parseInt(price * req.body.quantity);
-        let cart = await cartModel.findOne({ userId });
+        if (sizeFromClient) {
+            const sizes = sizeFromClient.split("");
+            const total = parseInt(price * req.body.quantity);
+            let cart = await cartModel.findOne({ userId });
 
-        if (cart) {
-            let itemIndex = cart.products.findIndex((p) => p.productId == productId);
+            if (cart) {
+                let itemIndex = cart.products.findIndex(
+                    (p) => p.productId == productId
+                );
 
-            if (itemIndex > -1) {
-                let productItem = cart.products[itemIndex];
-                productItem.quantity = quantity;
-                newTotal = parseInt(productItem.quantity * productItem.price);
-                productItem.total = newTotal;
-                cart.products[itemIndex] = productItem;
-                // let productItem = cart.products[itemIndex];
-                // productItem.quantity++;
-                // newTotal = parseInt(productItem.quantity * productItem.price)
-                // productItem.total = newTotal
-                // cart.products[itemIndex] = productItem;
-            } else {
-                cart.products.push({
-                    productId,
-                    quantity,
-                    image,
-                    name,
-                    size,
-                    color,
-                    price,
-                    total,
+                if (itemIndex > -1) {
+                    let productItem = cart.products[itemIndex];
+                    productItem.quantity = quantity;
+                    newTotal = parseInt(productItem.quantity * productItem.price);
+                    productItem.total = newTotal;
+                    cart.products[itemIndex] = productItem;
+                    // let productItem = cart.products[itemIndex];
+                    // productItem.quantity++;
+                    // newTotal = parseInt(productItem.quantity * productItem.price)
+                    // productItem.total = newTotal
+                    // cart.products[itemIndex] = productItem;
+                } else {
+                    cart.products.push({
+                        productId,
+                        quantity,
+                        image,
+                        name,
+                        size,
+                        color,
+                        price,
+                        total,
+                        sizes,
+                    });
+                }
+                cart = await cart.save();
+                await cartModel.findByIdAndUpdate(cart._id, {
+                    totalItems: cart.products.length,
                 });
-            }
-            cart = await cart.save();
-            await cartModel.findByIdAndUpdate(cart._id, {
-                totalItems: cart.products.length,
-            });
-            newSubTotal = cart.products
-                .map((item) => item.total)
-                .reduce((acc, next) => acc + next);
-            res.json({
-                cart,
-                SubTotal: newSubTotal,
-            });
-        } else {
-            const newCart = await cartModel.create({
-                userId,
-                products: [
-                    { productId, quantity, image, name, size, color, price, total },
-                ],
-            });
+                newSubTotal = cart.products
+                    .map((item) => item.total)
+                    .reduce((acc, next) => acc + next);
+                res.json({
+                    cart,
+                    SubTotal: newSubTotal,
+                });
+            } else {
+                const newCart = await cartModel.create({
+                    userId,
+                    products: [{
+                        productId,
+                        quantity,
+                        image,
+                        name,
+                        size,
+                        color,
+                        price,
+                        total,
+                        sizes,
+                    }, ],
+                });
 
-            return res.status(201).send(newCart);
+                return res.status(201).send(newCart);
+            }
+        } else {
+            const total = parseInt(price * req.body.quantity);
+            let cart = await cartModel.findOne({ userId });
+
+            if (cart) {
+                let itemIndex = cart.products.findIndex(
+                    (p) => p.productId == productId
+                );
+
+                if (itemIndex > -1) {
+                    let productItem = cart.products[itemIndex];
+                    productItem.quantity = quantity;
+                    newTotal = parseInt(productItem.quantity * productItem.price);
+                    productItem.total = newTotal;
+                    cart.products[itemIndex] = productItem;
+                    // let productItem = cart.products[itemIndex];
+                    // productItem.quantity++;
+                    // newTotal = parseInt(productItem.quantity * productItem.price)
+                    // productItem.total = newTotal
+                    // cart.products[itemIndex] = productItem;
+                } else {
+                    cart.products.push({
+                        productId,
+                        quantity,
+                        image,
+                        name,
+                        size,
+                        color,
+                        price,
+                        total,
+                    });
+                }
+                cart = await cart.save();
+                await cartModel.findByIdAndUpdate(cart._id, {
+                    totalItems: cart.products.length,
+                });
+                newSubTotal = cart.products
+                    .map((item) => item.total)
+                    .reduce((acc, next) => acc + next);
+                res.json({
+                    cart,
+                    SubTotal: newSubTotal,
+                });
+            } else {
+                const newCart = await cartModel.create({
+                    userId,
+                    products: [{
+                        productId,
+                        quantity,
+                        image,
+                        name,
+                        size,
+                        color,
+                        price,
+                        total,
+                    }, ],
+                });
+
+                return res.status(201).send(newCart);
+            }
         }
     } catch (err) {
         console.log(err);
         res.status(500).send("Something went wrong");
+    }
+});
+
+router.put("/edit-product-size/:userId/:productId", async(req, res) => {
+    const { size } = req.body;
+    const { user } = req.params.userId;
+
+    try {
+        let cart = await cartModel.findOne({ user });
+
+        cartModel.updateOne({ "products.productId": req.params.productId }, {
+                $set: {
+                    "products.$.size": size,
+                },
+            },
+            function(err, model) {
+                if (err) {
+                    console.log(err);
+                    return res.send(err);
+                } else {
+                    return res.json(model);
+                }
+            }
+        );
+    } catch (error) {
+        console.log(error);
     }
 });
 
@@ -175,9 +276,6 @@ router.delete("/delete-item/:userId/:productId", async(req, res) => {
     const cart = await cartModel.findOne({ user });
     previousTotalItems = cart.totalItems;
 
-    // await cartModel.findByIdAndUpdate(cart._id, {
-    //     totalItems: previousTotalItems - 1,
-    // });
     cartModel.findOneAndUpdate({ _id: cart._id }, {
             $pull: { products: { _id: req.params.productId } },
             totalItems: previousTotalItems - 1,
