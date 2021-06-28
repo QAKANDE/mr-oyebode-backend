@@ -1,6 +1,9 @@
 const router = require("express").Router();
 const reviewModel = require("./schema");
 const productModel = require("../products/schema");
+const accessoriesModel = require("../accessories/schema")
+
+
 const objectId = require("mongodb").ObjectID;
 
 const zeros = (i) => {
@@ -26,25 +29,50 @@ router.get("/:productId", async(req, res) => {
 
 router.post("/new-review/", async(req, res) => {
     try {
-        const { productId, text, width, email, ratings } = req.body;
-
+        const {
+            productId,
+            text,
+            width,
+            email,
+            ratings
+        } = req.body;
         const products = await productModel.findById(req.body.productId);
-        const productName = products.name;
-        const productImage = products.image;
-        const newReview = new reviewModel();
-        newReview.productId = productId;
-        newReview.name = productName;
-        newReview.image = productImage;
-        newReview.date = new Date().toDateString();
-        newReview.time = zeros(
-            zeros(new Date().getHours()) + ":" + zeros(new Date().getMinutes())
-        );
-        newReview.text = text;
-        newReview.width = width;
-        newReview.email = email;
-        newReview.ratings = ratings;
-        const reviewSaved = await newReview.save();
-        res.send("Review Created");
+        const accessories = await accessoriesModel.findById(req.body.productId);
+        if (products) {
+            const productName = products.name;
+            const productImage = products.image;
+            const newReview = new reviewModel();
+            newReview.productId = productId;
+            newReview.name = productName;
+            newReview.image = productImage;
+            newReview.date = new Date().toDateString();
+            newReview.time = zeros(
+                zeros(new Date().getHours()) + ":" + zeros(new Date().getMinutes())
+            );
+            newReview.text = text;
+            newReview.width = width;
+            newReview.email = email;
+            newReview.ratings = ratings;
+            const reviewSaved = await newReview.save();
+            res.send("Review Created");
+        } else if (accessories) {
+            const productName = accessories.name;
+            const productImage = accessories.image;
+            const newReview = new reviewModel();
+            newReview.productId = productId;
+            newReview.name = productName;
+            newReview.image = productImage;
+            newReview.date = new Date().toDateString();
+            newReview.time = zeros(zeros(new Date().getHours()) + ":" + zeros(new Date().getMinutes()));
+            newReview.text = text;
+            newReview.width = width;
+            newReview.email = email;
+            newReview.ratings = ratings;
+            const reviewSaved = await newReview.save();
+            res.send("Review Created");
+        }
+
+
     } catch (error) {
         console.log(error);
     }

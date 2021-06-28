@@ -32,6 +32,7 @@ router.post("/newproduct", async(req, res) => {
         newAccessory.description = description;
         newAccessory.color = color;
         newAccessory.size = size;
+        newAccessory.accessory = "Yes";
         await newAccessory.save();
         res.json(newAccessory._id);
     } catch (error) {

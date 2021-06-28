@@ -19,6 +19,9 @@ const accesorriesSchema = new mongoose.Schema({
     size: {
         type: String,
     },
+    accessoryConfirmation: {
+        type: String,
+    }
 }, { timestamps: true });
 
 const accesorries = mongoose.model("accessories", accesorriesSchema);

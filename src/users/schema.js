@@ -1,5 +1,5 @@
-const { model, Schema } = require("mongoose");
-const bcrypt = require("bcryptjs");
+const { model, Schema } = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const profileSchema = new Schema({
     userName: { type: String, required: true },
@@ -8,14 +8,14 @@ const profileSchema = new Schema({
         required: true,
         validate: {
             validator: async function(email) {
-                const user = await profileModel.find({ email: email });
+                const user = await profileModel.find({ email: email })
                 if (user.length > 0) {
-                    let error = new Error();
-                    error.message = "THIS EMAIL ALREADY EXISTS";
-                    throw error;
-                } else return true;
+                    let error = new Error()
+                    error.message = 'THIS EMAIL ALREADY EXISTS'
+                    throw error
+                } else return true
             },
-            message: "User already exists!",
+            message: 'User already exists!',
         },
     },
     phoneNumber: {
@@ -27,42 +27,42 @@ const profileSchema = new Schema({
         required: true,
         minlength: 7,
     },
-}, { timestamps: true });
+}, { timestamps: true }, )
 profileSchema.statics.findByCredentials = async(email, password) => {
-    const user = await profileModel.findOne({ email });
-    const isMatch = await bcrypt.compare(password, user.password);
+    const user = await profileModel.findOne({ email })
+    const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
-        const err = new Error("Unable to login");
-        err.httpStatusCode = 401;
-        throw err;
+        const err = new Error('Unable to login')
+        err.httpStatusCode = 401
+        throw err
     }
-    return user;
-};
+    return user
+}
 
-profileSchema.pre("save", async function(next) {
-    const user = this;
-    if (user.isModified("password")) {
-        user.password = await bcrypt.hash(user.password, 8);
+profileSchema.pre('save', async function(next) {
+    const user = this
+    if (user.isModified('password')) {
+        user.password = await bcrypt.hash(user.password, 8)
     }
-    next();
-});
-profileSchema.post("validate", function(error, doc, next) {
+    next()
+})
+profileSchema.post('validate', function(error, doc, next) {
     if (error) {
-        error.httpStatusCode = 400;
-        next(error);
+        error.httpStatusCode = 400
+        next(error)
     } else {
-        next();
+        next()
     }
-});
+})
 
-profileSchema.post("save", function(error, doc, next) {
-    if (error.name === "MongoError" && error.code === 11000) {
-        error.httpStatusCode = 400;
-        next(error);
+profileSchema.post('save', function(error, doc, next) {
+    if (error.name === 'MongoError' && error.code === 11000) {
+        error.httpStatusCode = 400
+        next(error)
     } else {
-        next();
+        next()
     }
-});
-const profileModel = model("users", profileSchema);
+})
+const profileModel = model('users', profileSchema)
 
-module.exports = profileModel;
+module.exports = profileModel

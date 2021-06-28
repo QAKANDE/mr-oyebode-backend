@@ -1,59 +1,59 @@
-const router = require("express").Router();
-const orderModel = require("./schema");
-const cartModel = require("../cart/schema");
-const ejs = require("ejs");
-const pdf = require("html-pdf");
-const path = require("path");
-const cloudinary = require("cloudinary").v2;
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const router = require('express').Router()
+const orderModel = require('./schema')
+const cartModel = require('../cart/schema')
+const ejs = require('ejs')
+const pdf = require('html-pdf')
+const path = require('path')
+const cloudinary = require('cloudinary').v2
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-CLOUDINARY_URL = process.env.CLOUDINARY_URL;
+CLOUDINARY_URL = process.env.CLOUDINARY_URL
 cloudinary.config({
-    cloud_name: "quadri",
+    cloud_name: 'quadri',
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
-});
+})
 
-router.get("/", async(req, res) => {
+router.get('/', async(req, res) => {
     try {
-        notDeliveredArray = [];
-        deliveredArray = [];
+        notDeliveredArray = []
+        deliveredArray = []
 
-        const allOrders = await orderModel.find();
+        const allOrders = await orderModel.find()
 
-        res.json(allOrders);
+        res.json(allOrders)
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-router.get("/search-orders-by-customerid", async(req, res) => {
+router.get('/search-orders-by-customerid', async(req, res) => {
     try {
-        const { customerId } = req.body;
-        const allOrders = await orderModel.find();
+        const { customerId } = req.body
+        const allOrders = await orderModel.find()
         const filteredOrderByCustomerId = allOrders.filter(
-            (order) => order.customerId === customerId
-        );
-        res.send(filteredOrder);
+            (order) => order.customerId === customerId,
+        )
+        res.send(filteredOrder)
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-router.get("/search-orders-by-date", async(req, res) => {
+router.get('/search-orders-by-date', async(req, res) => {
     try {
-        const { date } = req.body;
-        const allOrders = await orderModel.find();
-        const filteredByDate = allOrders.filter((order) => order.date === date);
-        res.send(filteredByDate);
+        const { date } = req.body
+        const allOrders = await orderModel.find()
+        const filteredByDate = allOrders.filter((order) => order.date === date)
+        res.send(filteredByDate)
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-router.post("/new-order", async(req, res) => {
-    const cartArr = [];
+router.post('/new-order', async(req, res) => {
+    const cartArr = []
     const {
         customerId,
         customerName,
@@ -64,10 +64,10 @@ router.post("/new-order", async(req, res) => {
         postCode,
         subTotal,
         userId,
-    } = req.body;
-    const cartPerUser = await cartModel.findOne({ userId });
+    } = req.body
+    const cartPerUser = await cartModel.findOne({ userId })
     if (!cartPerUser) {
-        res.send("No item in user's cart");
+        res.send("No item in user's cart")
     } else {
         for (let i = 0; i < cartPerUser.products.length; i++) {
             cartDetails = {
@@ -79,8 +79,8 @@ router.post("/new-order", async(req, res) => {
                 color: cartPerUser.products[i].color,
                 image: cartPerUser.products[i].image,
                 total: cartPerUser.products[i].total,
-            };
-            cartArr.push(cartDetails);
+            }
+            cartArr.push(cartDetails)
         }
         const newOrder = await orderModel.create({
             customerId,
@@ -92,56 +92,55 @@ router.post("/new-order", async(req, res) => {
                 country: country,
                 postCode: postCode,
             },
-
             product: cartArr,
             date: new Date().toDateString(),
-            time: new Date().getHours() + ":" + new Date().getMinutes(),
+            time: new Date().getHours() + ':' + new Date().getMinutes(),
             subTotal: subTotal,
-        });
+        })
         if (newOrder) {
-            res.send(newOrder);
+            res.status(200).send(newOrder)
         } else {
-            res.statusMessage("Something went wrong ");
+            res.statusMessage('Something went wrong ')
         }
     }
-});
+})
 
-router.post("/send-order-confirmation/:custId", async(req, res) => {
+router.post('/send-order-confirmation/:custId', async(req, res) => {
     try {
-        const products = [];
-        const allOrders = await orderModel.find();
+        const products = []
+        const allOrders = await orderModel.find()
         const orderDetails = allOrders.filter(
-            (order) => order.customerId === req.params.custId
-        );
+            (order) => order.customerId === req.params.custId,
+        )
         if (orderDetails.length !== 0) {
             const msg = {
                 to: req.params.custId, // Change to your recipient
-                from: "u1945140@uel.ac.uk", // Change to your verified sender
-                subject: "Order acknowledgement",
+                from: 'u1945140@uel.ac.uk', // Change to your verified sender
+                subject: 'Order acknowledgement',
 
                 html: `<div>{{#each orderDetails[0].product}}<div>{{this.size}}</div>{{/each}}</div>`,
-            };
+            }
             sgMail
                 .send(msg)
                 .then(async() => {
                     res.json({
-                        message: "Order Details Sent",
-                    });
+                        message: 'Order Details Sent',
+                    })
                 })
                 .catch((error) => {
-                    console.error(error);
-                });
+                    console.error(error)
+                })
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-router.put("/changeOrderStatus/:orderId", async(req, res) => {
+router.put('/changeOrderStatus/:orderId', async(req, res) => {
     const allOrders = await orderModel.findByIdAndUpdate(req.params.orderId, {
-        status: "Delivered",
-    });
-    res.send("Status changed");
-});
+        status: 'Delivered',
+    })
+    res.send('Status changed')
+})
 
-module.exports = router;
+module.exports = router
