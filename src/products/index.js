@@ -5,6 +5,7 @@ const multer = require('multer')
 const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
 const configuration = require('../services/middlewares/cloudinary')
+const { v4: uuidv4 } = require('uuid')
     // const storage = multer.diskStorage({
     //     filename: function(req, file, cb) {
     //         console.log(file);
@@ -22,10 +23,28 @@ const fileUpload = multer()
 //     api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
 // });
 
+router.get('/cookies', async(req, res) => {
+    const id = uuidv4()
+    cookieData = {
+            token: id,
+        }
+        // res
+        //     .cookie('token', JSON.stringify(cookieData), {
+        //         httpOnly: false,
+        //         maxAge: 1000 * 60 * 60 * 24 * 30 * 12 * 3000,
+        //     })
+        //     .send('succes')
+    res
+        .writeHead(200, {
+            'Set-Cookie': `token=${id}`,
+            'Access-Control-Allow-Credentials': 'true',
+        })
+        .send()
+})
+
 router.get('/', async(req, res) => {
     const products = await productModel.find()
     res.send(products)
-    console.log(products)
 })
 
 router.get('/:id', async(req, res) => {
@@ -61,29 +80,70 @@ router.post('/newproduct', async(req, res) => {
     const {
         name,
         price,
-        image,
+        imageUrl,
         description,
         color,
         sizeAsString,
         size,
+        productId,
+        stockColor,
+        stockSize,
+        stockQuantity,
+        stockId,
     } = req.body
-    const sizeArr = size.split('')
+
+    // const sizeArr = size.split('')
+
+    // const colorSplit = color.split(',')
     try {
-        const newProduct = await productModel.create({
-            name,
-            price,
-            image,
-            description,
-            color,
-            sizeAsString,
-            sizes: sizeArr,
-        })
-        if (newProduct) {
-            res.send(newProduct)
+        let product = await productModel.findById(productId)
+        if (product) {
+            if (imageUrl !== undefined) {
+                product.images.push({ imageUrl: imageUrl })
+                product = await product.save()
+                res.send('Image Added')
+            } else {
+                if (product.stock.length !== 0) {
+                    product.stock.push({
+                        colors: [{
+                            color: stockColor,
+                            sizes: [{
+                                size: stockSize,
+                                quantity: stockQuantity,
+                            }, ],
+                        }, ],
+                    })
+                    product = await product.save()
+                    res.send('Updated')
+                }
+            }
         } else {
-            res.status(400).json({
-                message: 'Bad request',
+            const descriptionSplit = description.split(',')
+            const newProduct = await productModel.create({
+                name,
+                price,
+                colors: colorSplit,
+                images: [{ imageUrl: imageUrl }],
+                stock: [{
+                    colors: [{
+                        color: stockColor,
+                        sizes: [{
+                            size: stockSize,
+                            quantity: stockQuantity,
+                        }, ],
+                    }, ],
+                }, ],
+                description: descriptionSplit,
+                sizeAsString,
+                sizes: sizeArr,
             })
+            if (newProduct) {
+                res.send(newProduct)
+            } else {
+                res.status(400).json({
+                    message: 'Bad request',
+                })
+            }
         }
     } catch (error) {
         console.log(error)
@@ -132,10 +192,37 @@ router.put('/edit-product/:id', async(req, res) => {
         size: size,
     })
     if (edit) {
-        console.log('edited')
         res.send('Product Edited ')
     } else {
         console.log('Something wromg')
+    }
+})
+router.put('/update-stock-quantity', async(req, res) => {
+    const { stockId, productId } = req.body
+    try {
+        console.log(productId)
+        let product = await productModel.findById(productId)
+
+        // const stockItem = product.stock.filter((stck) => stck._id === stockId)
+        // console.log(stockItem)
+        // let cart = await cartModel.findOne({ user })
+
+        // cartModel.updateOne({ 'products.productId': req.params.productId }, {
+        //         $set: {
+        //             'products.$.size': size,
+        //         },
+        //     },
+        //     function(err, model) {
+        //         if (err) {
+        //             console.log(err)
+        //             return res.send(err)
+        //         } else {
+        //             return res.json(model)
+        //         }
+        //     },
+        // )
+    } catch (error) {
+        console.log(error)
     }
 })
 

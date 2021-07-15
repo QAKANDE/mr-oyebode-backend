@@ -95,11 +95,12 @@ router.get('/guest/guest-token', async(req, res) => {
     const guestToken = tokens[0]._id
         // const deleteToken = await idsModel.findByIdAndDelete(tokens[0]._id);
     res.send(guestToken)
-        // const newId = await new idsModel();
-        // newId.user = "guestUser";
-        // res.json({
-        //     id: newId._id,
-        // });
+
+    // const newId = await new idsModel();
+    // newId.user = "guestUser";
+    // res.json({
+    //     id: newId._id,
+    // });
 })
 router.post('/check-out-as-guest', async(req, res) => {
     try {
@@ -129,6 +130,7 @@ router.post('/check-out-as-guest', async(req, res) => {
                     newTotal = parseInt(productItem.quantity * productItem.price)
                     productItem.total = newTotal
                     cart.products[itemIndex] = productItem
+                    console.log(quantity)
                         // let productItem = cart.products[itemIndex];
                         // productItem.quantity++;
                         // newTotal = parseInt(productItem.quantity * productItem.price)
@@ -189,11 +191,12 @@ router.post('/check-out-as-guest', async(req, res) => {
                     newTotal = parseInt(productItem.quantity * productItem.price)
                     productItem.total = newTotal
                     cart.products[itemIndex] = productItem
-                        // let productItem = cart.products[itemIndex];
-                        // productItem.quantity++;
-                        // newTotal = parseInt(productItem.quantity * productItem.price)
-                        // productItem.total = newTotal
-                        // cart.products[itemIndex] = productItem;
+
+                    // let productItem = cart.products[itemIndex];
+                    // productItem.quantity++;
+                    // newTotal = parseInt(productItem.quantity * productItem.price)
+                    // productItem.total = newTotal
+                    // cart.products[itemIndex] = productItem;
                 } else {
                     cart.products.push({
                         productId,

@@ -1,58 +1,56 @@
-const express = require("express");
-const router = express.Router();
-const wishListModel = require("./schema");
+const express = require('express')
+const router = express.Router()
+const wishListModel = require('./schema')
 
-router.get("/:userId", async(req, res) => {
+router.get('/:userId', async(req, res) => {
     try {
-        const { userId } = req.params.userId;
-        const wishListPerUser = await wishListModel.findOne({ userId });
+        const { userId } = req.params.userId
+        const wishListPerUser = await wishListModel.findOne({ userId })
         if (wishListPerUser) {
-            res.send(wishListPerUser);
+            res.send(wishListPerUser)
         } else {
             res.json({
-                message: "No item in wishlist",
-            });
+                message: 'No item in wishlist',
+            })
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-router.post("/:userId", async(req, res) => {
+router.post('/:userId', async(req, res) => {
     try {
-        const { userId } = req.params.userId;
-        const { productId, image, name, size, color, price } = req.body;
-        const wishList = await wishListModel.findOne({ userId });
+        const { userId } = req.params.userId
+        const { productId, image, name, size, color, price } = req.body
+        const wishList = await wishListModel.findOne({ userId })
         if (wishList) {
             let itemIndex = wishList.products.findIndex(
-                (p) => p.productId == productId
-            );
+                (p) => p.productId == productId,
+            )
             if (itemIndex > -1) {
                 res.json({
-                    message: "Item already in wishlist",
-                });
+                    message: 'Item already in wishlist',
+                })
             } else {
                 wishList.products.push({
                     productId,
                     image,
                     name,
-                    size,
-                    color,
                     price,
-                });
+                })
             }
-            await wishList.save();
+            await wishList.save()
         } else {
             const newWishList = await wishListModel.create({
                 userId,
-                products: [{ productId, image, name, size, color, price }],
-            });
+                products: [{ productId, image, name, price }],
+            })
 
-            return res.status(201).send(newWishList);
+            return res.status(201).send(newWishList)
         }
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+})
 
-module.exports = router;
+module.exports = router
