@@ -84,7 +84,7 @@ router.post('/transactional-email-customer', async(req, res) => {
 
             const msg = {
                     to: customerEmail,
-                    from: 'sales@johnpaulstephen.com',
+                    from: 'info@johnpaulstephen.com',
                     subject: 'Thank you for your order',
                     html: `<div>
                 <h2>Thank you for your order</h2> 
@@ -103,7 +103,7 @@ router.post('/transactional-email-customer', async(req, res) => {
                     })}
                     <p>Shipping cost: 4.99</p>
                     <p>Total: ${total}</p>
-                    <h2>John Paul Stephen</h2>
+                    <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
                     </div>`,
   }
   sgMail
@@ -127,12 +127,12 @@ router.post('/transactional-email-to-sales', async (req, res) => {
   const total = newSubTotal + 4.99
 
   const msg = {
-    to: 'info@johnpaulstephen.com',
-    from: 'sales@johnpaulstephen.com',
-    subject: 'Thank you for your order',
+    to: 'sales@johnpaulstephen.com',
+    from: 'info@johnpaulstephen.com',
+    subject: 'New order for John Paul Stephen',
     html: `<div>
-        <h2>Thank you for your order</h2> 
-        <h2>These are your order details</h2>
+        <h2>There's a new order</h2> 
+        <h2>These are the new order details</h2>
             ${cart.products.map((arr) => {
               return `<div> 
     <img src=${arr.image} style="width:50%; height:50%;"></img>
@@ -147,7 +147,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
             })}
             <p>Shipping cost: 4.99</p>
             <p>Total: ${total}</p>
-            <h2>John Paul Stephen</h2>
+            <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
             </div>`,
   }
   sgMail

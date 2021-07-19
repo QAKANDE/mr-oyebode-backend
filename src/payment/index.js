@@ -72,7 +72,7 @@ router.post('/send-royal-mail-order', async(req, res) => {
                 }),
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: 'Bearer ad561b6e-c1c6-4300-8f50-e7b2fa993d96',
+                    Authorization: `Bearer ${process.env.royal_mail_key}`,
                 },
             },
         )
