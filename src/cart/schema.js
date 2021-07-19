@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
 const cart2Schema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
     },
     totalItems: Number,
     products: [{
@@ -11,11 +11,9 @@ const cart2Schema = new mongoose.Schema({
         quantity: Number,
         image: String,
         name: String,
-        size: { type: String, default: "None" },
-        color: String,
         price: Number,
         total: Number,
-        sizes: [],
+        stock: [],
     }, ],
 
     active: {
@@ -26,11 +24,11 @@ const cart2Schema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-}, { timestamps: true });
+}, { timestamps: true }, )
 
-cart2Schema.pre("save", async function(next) {
-    this.totalItems = this.products.length;
-    next();
-});
+cart2Schema.pre('save', async function(next) {
+    this.totalItems = this.products.length
+    next()
+})
 
-module.exports = mongoose.model("cart", cart2Schema);
+module.exports = mongoose.model('cart', cart2Schema)

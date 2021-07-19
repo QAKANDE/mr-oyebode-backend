@@ -110,14 +110,14 @@ router.post('/check-out-as-guest', async(req, res) => {
             image,
             name,
             size,
+            stock,
             color,
             price,
             sizeFromClient,
             userId,
         } = req.body
-
         if (sizeFromClient) {
-            const sizes = sizeFromClient.split('')
+            // const sizes = sizeFromClient.split('')
             const total = parseInt(price * req.body.quantity)
             let cart = await cartModel.findOne({ userId })
 
@@ -146,7 +146,7 @@ router.post('/check-out-as-guest', async(req, res) => {
                         color,
                         price,
                         total,
-                        sizes,
+                        stock,
                     })
                 }
                 cart = await cart.save()
@@ -172,7 +172,7 @@ router.post('/check-out-as-guest', async(req, res) => {
                         color,
                         price,
                         total,
-                        sizes,
+                        stock,
                     }, ],
                 })
 
@@ -207,6 +207,7 @@ router.post('/check-out-as-guest', async(req, res) => {
                         color,
                         price,
                         total,
+                        stock,
                     })
                 }
                 cart = await cart.save()
@@ -232,6 +233,7 @@ router.post('/check-out-as-guest', async(req, res) => {
                         color,
                         price,
                         total,
+                        stock,
                     }, ],
                 })
 

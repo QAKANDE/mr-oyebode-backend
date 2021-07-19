@@ -7,22 +7,12 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: '20',
     },
-    images: [{
-        imageUrl: { type: String, required: true },
-    }, ],
+    imageUrl: { type: String, required: true },
     stock: [{
-        colors: [{
-            color: String,
-            sizes: [{
-                size: String,
-                quantity: String,
-            }, ],
-        }, ],
+        color: String,
+        sizes: [{ size: String, quantity: String }],
     }, ],
     description: [],
-
-    sizeAsString: { type: String, required: true },
-    sizes: [],
 }, { timestamps: true }, )
 
 const product = mongoose.model('product', productSchema)

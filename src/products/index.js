@@ -79,63 +79,49 @@ router.get('/search/:productName', async(req, res) => {
 router.post('/newproduct', async(req, res) => {
     const {
         name,
-        price,
         imageUrl,
         description,
-        color,
-        sizeAsString,
-        size,
         productId,
         stockColor,
         stockSize,
         stockQuantity,
         stockId,
     } = req.body
-
-    // const sizeArr = size.split('')
-
-    // const colorSplit = color.split(',')
     try {
         let product = await productModel.findById(productId)
         if (product) {
-            if (imageUrl !== undefined) {
-                product.images.push({ imageUrl: imageUrl })
+            if (stockColor !== undefined) {
+                product.stock.push({
+                    color: stockColor,
+                    sizes: [{ size: stockSize, quantity: stockQuantity }],
+                })
                 product = await product.save()
-                res.send('Image Added')
-            } else {
-                if (product.stock.length !== 0) {
-                    product.stock.push({
-                        colors: [{
-                            color: stockColor,
-                            sizes: [{
-                                size: stockSize,
-                                quantity: stockQuantity,
-                            }, ],
-                        }, ],
-                    })
-                    product = await product.save()
-                    res.send('Updated')
+                res.send('Updated')
+            } else if (stockColor === undefined) {
+                const query = { _id: productId, 'stock._id': stockId }
+                const updateDocument = {
+                    $push: {
+                        'stock.$.sizes': { size: stockSize, quantity: stockQuantity },
+                    },
                 }
+                const result = await productModel.updateOne(query, updateDocument)
+                res.json({ message: 'Updated' })
             }
         } else {
+            const stock = {
+                color: stockColor,
+                size: stockSize,
+                quantity: stockQuantity,
+            }
             const descriptionSplit = description.split(',')
             const newProduct = await productModel.create({
                 name,
-                price,
-                colors: colorSplit,
-                images: [{ imageUrl: imageUrl }],
+                imageUrl: imageUrl,
                 stock: [{
-                    colors: [{
-                        color: stockColor,
-                        sizes: [{
-                            size: stockSize,
-                            quantity: stockQuantity,
-                        }, ],
-                    }, ],
+                    color: stockColor,
+                    sizes: [{ size: stockSize, quantity: stockQuantity }],
                 }, ],
                 description: descriptionSplit,
-                sizeAsString,
-                sizes: sizeArr,
             })
             if (newProduct) {
                 res.send(newProduct)
@@ -145,6 +131,20 @@ router.post('/newproduct', async(req, res) => {
                 })
             }
         }
+    } catch (error) {
+        console.log(error)
+    }
+})
+router.post('/update-color-size', async(req, res) => {
+    try {
+        const arr = []
+        const { productId, stockId } = req.body
+        let product = await productModel.findById(productId)
+        const stockItem = product.stock.map((stck) => {
+            return arr.push(stck)
+        })
+        const filt = arr.filter((stck) => stck._id === stockId)
+        res.send(arr)
     } catch (error) {
         console.log(error)
     }
@@ -183,6 +183,7 @@ router.post(
 
 router.put('/edit-product/:id', async(req, res) => {
     const { name, price, image, description, color, size } = req.body
+
     const edit = await productModel.findByIdAndUpdate(req.params.id, {
         name: name,
         price: price,
@@ -197,30 +198,26 @@ router.put('/edit-product/:id', async(req, res) => {
         console.log('Something wromg')
     }
 })
+
 router.put('/update-stock-quantity', async(req, res) => {
-    const { stockId, productId } = req.body
+    const { productId, sizeId, quantity, stockId, size } = req.body
+    const stringifiedQuantity = quantity.toString()
+
     try {
-        console.log(productId)
         let product = await productModel.findById(productId)
+        const query = {
+            _id: productId,
+            'stock._id': stockId,
+        }
+        const updateDocument = {
+            $set: { 'stock.$[].sizes': { quantity } },
+        }
 
-        // const stockItem = product.stock.filter((stck) => stck._id === stockId)
-        // console.log(stockItem)
-        // let cart = await cartModel.findOne({ user })
+        const filters = [{ 'sizes._id': sizeId }]
 
-        // cartModel.updateOne({ 'products.productId': req.params.productId }, {
-        //         $set: {
-        //             'products.$.size': size,
-        //         },
-        //     },
-        //     function(err, model) {
-        //         if (err) {
-        //             console.log(err)
-        //             return res.send(err)
-        //         } else {
-        //             return res.json(model)
-        //         }
-        //     },
-        // )
+        const result = await productModel.updateOne(filters, query, updateDocument)
+
+        res.json({ message: result })
     } catch (error) {
         console.log(error)
     }
