@@ -210,7 +210,7 @@ router.put('/update-stock-quantity', async(req, res) => {
             'stock._id': stockId,
         }
         const updateDocument = {
-            $set: { 'stock.$[].sizes': { quantity } },
+            $set: { 'stock.$.sizes': { quantity } },
         }
 
         const filters = [{ 'sizes._id': sizeId }]

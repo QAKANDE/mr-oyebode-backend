@@ -13,6 +13,8 @@ const cart2Schema = new mongoose.Schema({
         name: String,
         price: Number,
         total: Number,
+        size: { type: String, default: 'None selected' },
+        color: { type: String, default: 'None selected' },
         stock: [],
     }, ],
 
