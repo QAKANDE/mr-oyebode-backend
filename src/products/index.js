@@ -6,22 +6,8 @@ const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
 const configuration = require('../services/middlewares/cloudinary')
 const { v4: uuidv4 } = require('uuid')
-    // const storage = multer.diskStorage({
-    //     filename: function(req, file, cb) {
-    //         console.log(file);
-    //         cb(null, file.originalname);
-    //     },
-    // });
+
 const fileUpload = multer()
-
-// configuration();
-
-// CLOUDINARY_URL = process.env.CLOUDINARY_URL;
-// cloudinary.config({
-//     cloud_name: "quadri",
-//     api_key: process.env.CLOUDINARY_API_KEY,
-//     api_secret: process.env.CLOUDINARY_API_SECRET_KEY,
-// });
 
 router.get('/cookies', async(req, res) => {
     const id = uuidv4()
@@ -90,6 +76,11 @@ router.post('/newproduct', async(req, res) => {
     try {
         let product = await productModel.findById(productId)
         if (product) {
+            if (imageUrl !== undefined) {
+                product.imageUrl.push({ url: imageUrl })
+                product = await product.save()
+                res.send('image edited')
+            }
             if (stockColor !== undefined) {
                 product.stock.push({
                     color: stockColor,
@@ -97,7 +88,8 @@ router.post('/newproduct', async(req, res) => {
                 })
                 product = await product.save()
                 res.send('Updated')
-            } else if (stockColor === undefined) {
+            }
+            if (stockColor === undefined && imageUrl === undefined) {
                 const query = { _id: productId, 'stock._id': stockId }
                 const updateDocument = {
                     $push: {
@@ -116,7 +108,7 @@ router.post('/newproduct', async(req, res) => {
             const descriptionSplit = description.split(',')
             const newProduct = await productModel.create({
                 name,
-                imageUrl: imageUrl,
+                imageUrl: [{ url: imageUrl }],
                 stock: [{
                     color: stockColor,
                     sizes: [{ size: stockSize, quantity: stockQuantity }],

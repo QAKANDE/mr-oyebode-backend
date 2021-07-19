@@ -4,7 +4,7 @@ const cartModel = require('./schema')
 const productModel = require('../products/schema')
 const objectId = require('mongodb').ObjectID
 const { findByIdAndUpdate } = require('./schema')
-const shortId = require('short-id')
+
 const idsModel = require('./idModel')
 var mongoose = require('mongoose')
 const sgMail = require('@sendgrid/mail')
@@ -67,10 +67,10 @@ router.post('/cart/:userId', async(req, res) => {
 })
 
 router.get('/guest/guest-token', async(req, res) => {
-    const tokenArray = []
-    const tokens = await idsModel.find()
-    const guestToken = tokens[0]._id
-    res.send(guestToken)
+    const translator = short()
+    res.json({
+        id: translator.new(),
+    })
 })
 
 router.post('/transactional-email-customer', async(req, res) => {
@@ -91,7 +91,7 @@ router.post('/transactional-email-customer', async(req, res) => {
                 <h2>These are your order details</h2>
                     ${cart.products.map((arr) => {
                       return `<div> 
-            <img src=${arr.image}></img>
+            <img src=${arr.image} style="width:50%; height:50%;"></img>
             <p>Product name : ${arr.name}</p>
             <p>Size : ${arr.size}</p>
             <p>Quantity: ${arr.quantity}</p>
@@ -108,7 +108,8 @@ router.post('/transactional-email-customer', async(req, res) => {
   }
   sgMail
     .send(msg)
-    .then(() => {
+    .then(async () => {
+      const cartToBeDeleted = await cartModel.findByIdAndDelete(id)
       res.send('Email sent')
     })
     .catch((error) => {
@@ -134,7 +135,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
         <h2>These are your order details</h2>
             ${cart.products.map((arr) => {
               return `<div> 
-    <img src=${arr.image}></img>
+    <img src=${arr.image} style="width:50%; height:50%;"></img>
     <p>Product name : ${arr.name}</p>
     <p>Size : ${arr.size}</p>
     <p>Quantity: ${arr.quantity}</p>
@@ -318,7 +319,6 @@ router.put('/edit-product-size/:userId/:productId', async (req, res) => {
           console.log(err)
           return res.send(err)
         } else {
-          console.log(model)
           return res.json(model)
         }
       },
@@ -344,7 +344,6 @@ router.put('/edit-product-color/:userId/:productId', async (req, res) => {
         if (err) {
           return res.send(err)
         } else {
-          console.log(model)
           return res.json(model)
         }
       },
@@ -354,9 +353,9 @@ router.put('/edit-product-color/:userId/:productId', async (req, res) => {
   }
 })
 
-router.delete('/delete-item/:userId/:productId', async (req, res) => {
-  const { user } = req.params.userId
-  const cart = await cartModel.findOne({ user })
+router.delete('/delete-item/:productId', async (req, res) => {
+  const { userId } = req.body
+  const cart = await cartModel.findOne({ userId })
   previousTotalItems = cart.totalItems
 
   cartModel.findOneAndUpdate(
