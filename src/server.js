@@ -23,24 +23,6 @@ server.use(cors())
 server.use(express.urlencoded({ extended: false }))
 server.use(express.json())
 server.use(cookieParser())
-    // server.set('trust proxy', 1)
-server.use(
-    session({
-        name: 'session',
-        secret: process.env.SESSION_SECRET_KEY,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        // saveUninitialized: true,
-        // resave: false,
-        // cookie: {
-        //     httpOnly: true,
-        //     maxAge: parseInt(process.env.SESSION_MAX_AGE),
-        //     sameSite: true,
-        // },
-    }),
-)
-server.use((req, res, next) => {
-    next()
-})
 
 server.use('/cart', newCart)
 server.use('/product', products)
@@ -54,11 +36,13 @@ server.use('/accessories', accessories)
 server.disable('x-powered-by')
 
 mongoose
-    .connect('mongodb://localhost:27017/mr-akintunde-e-commerce', {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-    })
+    .connect(
+        `mongodb+srv://JohnPaulStephen:${process.env.MONGO_PASSWORD}@cluster0.iimgv.mongodb.net/${process.env.MONGO_DATABASE_NAME}?retryWrites=true&w=majority`, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false,
+        },
+    )
     .then(
         server.listen(port, () => {
             console.log('Server is running on port', port)

@@ -1,0 +1,579 @@
+[{
+  "_id": {
+    "$oid": "60f58d607aa2712ee47faf01"
+  },
+  "price": 20,
+  "description": [
+    "Why Hate?",
+    "Hate Kills",
+    "Hate has no vibration",
+    "Love life",
+    "Stay Alive "
+  ],
+  "name": "Má Korira / Don’t Hate ",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f58d607aa2712ee47faf02"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626433747/makorira-1_copy_gwby4e.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f58d607aa2712ee47faf03"
+      },
+      "color": "Royal blue",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f58d607aa2712ee47faf04"
+          },
+          "size": "XXL",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f58e0c7aa2712ee47faf05"
+          },
+          "size": "XL",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f58e2f7aa2712ee47faf06"
+          },
+          "size": "L",
+          "quantity": "2"
+        },
+        {
+          "_id": {
+            "$oid": "60f58e387aa2712ee47faf07"
+          },
+          "size": "M",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f58f127aa2712ee47faf0d"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T14:34:08.804Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T14:46:46.577Z"
+  },
+  "__v": 4
+},{
+  "_id": {
+    "$oid": "60f597897086d5318480df80"
+  },
+  "price": 20,
+  "description": [
+    "The Brand"
+  ],
+  "name": "John Paul Stephen",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f597897086d5318480df81"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626704812/signature-1_zkrvyn.png"
+    },
+    {
+      "_id": {
+        "$oid": "60f597c27086d5318480df84"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626704911/signature-1_-black_rgzau4.png"
+    },
+    {
+      "_id": {
+        "$oid": "60f597dc7086d5318480df85"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626704930/signature-1_-_olive_green_rdtmbm.png"
+    },
+    {
+      "_id": {
+        "$oid": "60f597ec7086d5318480df86"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626704953/signature-1_-white_mstoq6.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f597897086d5318480df82"
+      },
+      "color": "White",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f597897086d5318480df83"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f598857086d5318480df87"
+          },
+          "size": "XL",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f5989c7086d5318480df88"
+          },
+          "size": "L",
+          "quantity": "5"
+        },
+        {
+          "_id": {
+            "$oid": "60f598a37086d5318480df89"
+          },
+          "size": "M",
+          "quantity": "7"
+        },
+        {
+          "_id": {
+            "$oid": "60f59ab57086d5318480df98"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "60f599287086d5318480df8a"
+      },
+      "color": "Black",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f599287086d5318480df8b"
+          },
+          "size": "XL",
+          "quantity": "4"
+        },
+        {
+          "_id": {
+            "$oid": "60f599637086d5318480df8c"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f599797086d5318480df8d"
+          },
+          "size": "L",
+          "quantity": "4"
+        },
+        {
+          "_id": {
+            "$oid": "60f5997f7086d5318480df8e"
+          },
+          "size": "M",
+          "quantity": "7"
+        },
+        {
+          "_id": {
+            "$oid": "60f59a8c7086d5318480df97"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "60f599ae7086d5318480df8f"
+      },
+      "color": "Olive green",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f599ae7086d5318480df90"
+          },
+          "size": "XXL",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f599ff7086d5318480df93"
+          },
+          "size": "XL",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f59a557086d5318480df94"
+          },
+          "size": "L",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f59a627086d5318480df95"
+          },
+          "size": "M",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59a687086d5318480df96"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    },
+    {
+      "_id": {
+        "$oid": "60f599cc7086d5318480df91"
+      },
+      "color": "Navy blue",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f599cc7086d5318480df92"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59aeb7086d5318480df9a"
+          },
+          "size": "XL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59bb97086d5318480df9b"
+          },
+          "size": "L",
+          "quantity": "6"
+        },
+        {
+          "_id": {
+            "$oid": "60f59bdd7086d5318480df9c"
+          },
+          "size": "M",
+          "quantity": "7"
+        },
+        {
+          "_id": {
+            "$oid": "60f59be97086d5318480df9d"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T15:17:29.104Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T15:36:09.880Z"
+  },
+  "__v": 6
+},{
+  "_id": {
+    "$oid": "60f59c7a7086d5318480df9e"
+  },
+  "price": 20,
+  "description": [
+    "Passing through Life",
+    "Touch someone’s life positively",
+    "Make your dream",
+    "Think it",
+    "Achieve it"
+  ],
+  "name": "What will you be known for?",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f59c7a7086d5318480df9f"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626433935/knownFor-1_msd6ie.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f59c7a7086d5318480dfa0"
+      },
+      "color": "Black",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f59c7a7086d5318480dfa1"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59cd97086d5318480dfa2"
+          },
+          "size": "XL",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f59cf07086d5318480dfa3"
+          },
+          "size": "L",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f59cf67086d5318480dfa4"
+          },
+          "size": "M",
+          "quantity": "2"
+        },
+        {
+          "_id": {
+            "$oid": "60f59cfe7086d5318480dfa5"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T15:38:34.576Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T15:40:46.275Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "60f59d5c7086d5318480dfa6"
+  },
+  "price": 20,
+  "description": [
+    "A new kind of style",
+    "Avante Garde fashion",
+    "Own it",
+    "Love it"
+  ],
+  "name": "Out of Fashion",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f59d5c7086d5318480dfa7"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626433894/outOfFashion-1_czq39s.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f59d5c7086d5318480dfa8"
+      },
+      "color": "White",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f59d5c7086d5318480dfa9"
+          },
+          "size": "XXL",
+          "quantity": "2"
+        },
+        {
+          "_id": {
+            "$oid": "60f59d7d7086d5318480dfaa"
+          },
+          "size": "XL",
+          "quantity": "4"
+        },
+        {
+          "_id": {
+            "$oid": "60f59d897086d5318480dfab"
+          },
+          "size": "L",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f59d977086d5318480dfac"
+          },
+          "size": "M",
+          "quantity": "4"
+        },
+        {
+          "_id": {
+            "$oid": "60f59d9f7086d5318480dfad"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T15:42:20.885Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T15:43:27.709Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "60f59e047086d5318480dfae"
+  },
+  "price": 20,
+  "description": [
+    "Our fashion statement",
+    "Our signature",
+    "What we stand for",
+    "Our unique selling point",
+    "Our offer to our customers"
+  ],
+  "name": "Our thing Our belief Our heritage",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f59e047086d5318480dfaf"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626433913/ourheritage-1_jtn9k2.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f59e047086d5318480dfb0"
+      },
+      "color": "Navy Blue",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f59e047086d5318480dfb1"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59e2b7086d5318480dfb2"
+          },
+          "size": "XL",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f59e367086d5318480dfb3"
+          },
+          "size": "L",
+          "quantity": "2"
+        },
+        {
+          "_id": {
+            "$oid": "60f59e497086d5318480dfb4"
+          },
+          "size": "M",
+          "quantity": "1"
+        },
+        {
+          "_id": {
+            "$oid": "60f59e517086d5318480dfb5"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T15:45:08.728Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T15:46:25.313Z"
+  },
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "60f59ed07086d5318480dfb6"
+  },
+  "price": 20,
+  "description": [
+    "Black is Strong",
+    "Make it shine",
+    "Black is beautiful"
+  ],
+  "name": "Dúdú Dára / Black is Good",
+  "imageUrl": [
+    {
+      "_id": {
+        "$oid": "60f59ed07086d5318480dfb7"
+      },
+      "url": "https://res.cloudinary.com/quadri/image/upload/v1626433867/duduDara-1_mp8yha.png"
+    }
+  ],
+  "stock": [
+    {
+      "_id": {
+        "$oid": "60f59ed07086d5318480dfb8"
+      },
+      "color": "Black",
+      "sizes": [
+        {
+          "_id": {
+            "$oid": "60f59ed07086d5318480dfb9"
+          },
+          "size": "XXL",
+          "quantity": "0"
+        },
+        {
+          "_id": {
+            "$oid": "60f59f0f7086d5318480dfba"
+          },
+          "size": "XL",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f59f197086d5318480dfbb"
+          },
+          "size": "L",
+          "quantity": "2"
+        },
+        {
+          "_id": {
+            "$oid": "60f59f287086d5318480dfbc"
+          },
+          "size": "M",
+          "quantity": "3"
+        },
+        {
+          "_id": {
+            "$oid": "60f59f307086d5318480dfbd"
+          },
+          "size": "S",
+          "quantity": "0"
+        }
+      ]
+    }
+  ],
+  "createdAt": {
+    "$date": "2021-07-19T15:48:32.794Z"
+  },
+  "updatedAt": {
+    "$date": "2021-07-19T15:50:08.325Z"
+  },
+  "__v": 0
+}]

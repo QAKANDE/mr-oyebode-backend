@@ -5,7 +5,7 @@ const addressModel = require('../users/addressSchema')
 const objectId = require('mongodb').ObjectID
 const cartModel = require('../cart/schema')
 const bcrypt = require('bcryptjs')
-const shortId = require('short-id')
+
 const resetPasswordTokenModel = require('./resetPasswordSchema')
 const userOrderModel = require('./ordersSchema')
 const {
