@@ -104,7 +104,7 @@ router.post('/transactional-email-customer', async(req, res) => {
                 </div>`
                         })}
                         <p>Shipping cost: 4.99</p>
-                        <p>Total: ${total}</p>
+                        <p>Total: ${total.toFixed(2)}</p>
                         <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
                         </div>`,
   }
@@ -152,7 +152,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
       </div>`
               })}
               <p>Shipping cost: 4.99</p>
-              <p>Total: ${total}</p>
+              <p>Total: ${total.toFixed(2)}</p>
               <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
               </div>`,
   }
