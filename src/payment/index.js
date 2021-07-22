@@ -9,7 +9,7 @@ const cartModel = require('../cart/schema')
 const guestModel = require('../cart/idModel')
 var mongoose = require('mongoose')
 var request = require('request')
-var PAYPAL_API = 'https://api-m.sandbox.paypal.com'
+var PAYPAL_API = 'https://api-m.paypal.com'
 
 router.post('/order-address', async(req, res) => {
     const {
