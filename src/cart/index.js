@@ -138,7 +138,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
     subject: 'New order for John Paul Stephen',
     html: `<div>
           <h2>There's a new order</h2>
-          <h2>These are the new order details</h2>
+          <h2>These are the new order details for JPS</h2>
               ${cart.products.map((arr) => {
                 return `<div>
       <img src=${arr.image} style="width:50%; height:50%;"></img>
