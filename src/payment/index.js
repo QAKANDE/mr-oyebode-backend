@@ -142,8 +142,8 @@ router.post('/my-api/create-payment/', function(req, res) {
                     },
                 }, ],
                 redirect_urls: {
-                    return_url: 'http://localhost:3000/',
-                    cancel_url: 'http://localhost:3000/',
+                    return_url: 'www.johnpaulstephen.com/order-confirmed',
+                    cancel_url: 'www.johnpaulstephen.com',
                 },
             },
             json: true,
@@ -169,8 +169,8 @@ router.post('/my-api/execute-payment/', function(req, res) {
     request.post(
         PAYPAL_API + '/v1/payments/payment/' + paymentID + '/execute', {
             auth: {
-                user: 'AW-oCP6wKBTQGlNZwTaIR_Y-N6yIrGl-pZ6GB-rBL3Xge5z3pPBRB_UdmjPl6IbQYq7sIJVvS1djO_rg',
-                pass: 'EGxGAXc78_ve1-suXyAUVS_1DQ5i_U4w7L8RaMVkidFeEbhy7g4mzjTiAfs9SaPPFIvfNrO_l_Cr2fmr',
+                user: process.env.PAYPAL_CLIENT_ID,
+                pass: process.env.PAYPAL_SECRET_KEY,
             },
             body: {
                 payer_id: payerID,
