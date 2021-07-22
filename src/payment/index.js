@@ -3,28 +3,60 @@ const stripe = require('stripe')(
     'sk_test_51HrjVqFcebO7I650cg7qAO3LQ8zMTuIbIrsmN4e7G6bF5De1LYaibXReF99xrERIFKNPPCJNERjPH5ARrOXsSTDw00lzJ53cGu',
 )
 const fetch = require('node-fetch')
-const stripeModel = require('./schema')
+const orderAddressModel = require('./schema')
 const objectId = require('mongodb').ObjectID
 const cartModel = require('../cart/schema')
 const guestModel = require('../cart/idModel')
 var mongoose = require('mongoose')
+var request = require('request')
+var PAYPAL_API = 'https://api-m.sandbox.paypal.com'
+
+router.post('/order-address', async(req, res) => {
+    const {
+        userId,
+        fullName,
+        addressLine1,
+        city,
+        postCode,
+        email,
+        subTotal,
+        total,
+        billingAddressFullName,
+        billingAddressaddressLine1,
+        billingAddresscity,
+        billingAddresspostCode,
+        billingAddressemail,
+    } = req.body
+
+    const newOrderAddress = await orderAddressModel.create({
+        userId: userId,
+        fullName: fullName,
+        addressLine1: addressLine1,
+        city: city,
+        postCode: postCode,
+        email: email,
+        subTotal: subTotal,
+        total: total,
+        billingAddressFullName: billingAddressFullName,
+        billingAddressaddressLine1: billingAddressaddressLine1,
+        billingAddresscity: billingAddresscity,
+        billingAddresspostCode: billingAddresspostCode,
+        billingAddressemail: billingAddressemail,
+    })
+
+    if (newOrderAddress) {
+        res.json({
+            message: 'Success',
+        })
+    }
+})
 
 router.post('/send-royal-mail-order', async(req, res) => {
     try {
-        const {
-            fullName,
-            addressLine1,
-            city,
-            postCode,
-            email,
-            subTotal,
-            total,
-            billingAddressFullName,
-            billingAddressaddressLine1,
-            billingAddresscity,
-            billingAddresspostCode,
-            billingAddressemail,
-        } = req.body
+        const { id } = req.body
+        const userId = id
+        const findAddress = await orderAddressModel.findOne({ userId })
+        const findCart = await cartModel.findOne({ userId })
 
         const response = await fetch(
             'https://api.parcel.royalmail.com/api/v1/orders', {
@@ -33,13 +65,13 @@ router.post('/send-royal-mail-order', async(req, res) => {
                     items: [{
                         recipient: {
                             address: {
-                                fullName: fullName,
-                                addressLine1: addressLine1,
-                                city: city,
-                                postcode: postCode,
+                                fullName: findAddress.fullName,
+                                addressLine1: findAddress.addressLine1,
+                                city: findAddress.city,
+                                postcode: findAddress.postCode,
                                 CountryCode: 'GB',
                             },
-                            emailAddress: email,
+                            emailAddress: findAddress.email,
                         },
                         sender: {
                             tradingName: 'John Paul Stephen Limited',
@@ -48,18 +80,18 @@ router.post('/send-royal-mail-order', async(req, res) => {
                         },
                         billing: {
                             address: {
-                                fullName: billingAddressFullName,
-                                addressLine1: billingAddressaddressLine1,
-                                city: billingAddresscity,
-                                postcode: billingAddresspostCode,
+                                fullName: findAddress.billingAddressFullName,
+                                addressLine1: findAddress.billingAddressaddressLine1,
+                                city: findAddress.billingAddresscity,
+                                postcode: findAddress.billingAddresspostCode,
                                 CountryCode: 'GB',
                             },
-                            emailAddress: billingAddressemail,
+                            emailAddress: findAddress.billingAddressemail,
                         },
                         orderDate: new Date(),
-                        subtotal: subTotal,
+                        subtotal: findAddress.subTotal,
                         shippingCostCharged: 4.99,
-                        total: total,
+                        total: findAddress.total,
                         currencyCode: 'GBP',
                         postageDetails: {
                             sendNotificationsTo: 'sender',
@@ -77,10 +109,91 @@ router.post('/send-royal-mail-order', async(req, res) => {
             },
         )
         const details = await response.json()
-        res.send(details)
+
+        res.json({
+            details: details,
+            cartId: findCart._id,
+            custEmail: findAddress.email,
+            orderId: findAddress._id,
+        })
     } catch (error) {
         console.log(error)
     }
+})
+
+router.post('/my-api/create-payment/', function(req, res) {
+    const { total } = req.body
+
+    request.post(
+        PAYPAL_API + '/v1/payments/payment', {
+            auth: {
+                user: process.env.PAYPAL_CLIENT_ID,
+                pass: process.env.PAYPAL_SECRET_KEY,
+            },
+            body: {
+                intent: 'sale',
+                payer: {
+                    payment_method: 'paypal',
+                },
+                transactions: [{
+                    amount: {
+                        total: total,
+                        currency: 'GBP',
+                    },
+                }, ],
+                redirect_urls: {
+                    return_url: 'http://localhost:3000/',
+                    cancel_url: 'http://localhost:3000/',
+                },
+            },
+            json: true,
+        },
+        function(err, response) {
+            if (err) {
+                console.error(err)
+                return res.sendStatus(500)
+            } else {
+                res.json({
+                    id: response.body.id,
+                })
+            }
+        },
+    )
+})
+router.post('/my-api/execute-payment/', function(req, res) {
+    // 2. Get the payment ID and the payer ID from the request body.
+    var paymentID = req.body.paymentID
+    var payerID = req.body.payerID
+    const total = req.body.total
+        // 3. Call /v1/payments/payment/PAY-XXX/execute to finalize the payment.
+    request.post(
+        PAYPAL_API + '/v1/payments/payment/' + paymentID + '/execute', {
+            auth: {
+                user: 'AW-oCP6wKBTQGlNZwTaIR_Y-N6yIrGl-pZ6GB-rBL3Xge5z3pPBRB_UdmjPl6IbQYq7sIJVvS1djO_rg',
+                pass: 'EGxGAXc78_ve1-suXyAUVS_1DQ5i_U4w7L8RaMVkidFeEbhy7g4mzjTiAfs9SaPPFIvfNrO_l_Cr2fmr',
+            },
+            body: {
+                payer_id: payerID,
+                transactions: [{
+                    amount: {
+                        total: total,
+                        currency: 'GBP',
+                    },
+                }, ],
+            },
+            json: true,
+        },
+        function(err, response) {
+            if (err) {
+                console.error(err)
+                return res.sendStatus(500)
+            }
+            // 4. Return a success response to the client
+            res.json({
+                status: 'success',
+            })
+        },
+    )
 })
 
 // router.post('/checkout', async function(req, res) {
@@ -274,5 +387,4 @@ router.delete('/delete-payment-price-and-cart', async(req, res) => {
         console.log(error)
     }
 })
-
 module.exports = router

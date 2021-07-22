@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const cartModel = require('./schema')
 const productModel = require('../products/schema')
+const orderAddressModel = require('../payment/schema')
 const objectId = require('mongodb').ObjectID
 const { findByIdAndUpdate } = require('./schema')
 
@@ -74,9 +75,10 @@ router.get('/guest/guest-token', async(req, res) => {
 })
 
 router.post('/transactional-email-customer', async(req, res) => {
-            const { customerEmail, id } = req.body
+            const { customerEmail, id, orderId } = req.body
 
             const cart = await cartModel.findById(id)
+
             newSubTotal = cart.products
                 .map((item) => item.total)
                 .reduce((acc, next) => acc + next)
@@ -87,29 +89,32 @@ router.post('/transactional-email-customer', async(req, res) => {
                     from: 'info@johnpaulstephen.com',
                     subject: 'Thank you for your order',
                     html: `<div>
-                <h2>Thank you for your order</h2> 
-                <h2>These are your order details</h2>
-                    ${cart.products.map((arr) => {
-                      return `<div> 
-            <img src=${arr.image} style="width:50%; height:50%;"></img>
-            <p>Product name : ${arr.name}</p>
-            <p>Size : ${arr.size}</p>
-            <p>Quantity: ${arr.quantity}</p>
-            <p>Price: ${arr.price}</p>
-            <p>Subtotal: ${arr.total}</p>
-            <div>
-            </div>
-            </div>`
-                    })}
-                    <p>Shipping cost: 4.99</p>
-                    <p>Total: ${total}</p>
-                    <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
-                    </div>`,
+                    <h2>Thank you for your order</h2>
+                    <h2>These are your order details</h2>
+                        ${cart.products.map((arr) => {
+                          return `<div>
+                <img src=${arr.image} style="width:50%; height:50%;"></img>
+                <p>Product name : ${arr.name}</p>
+                <p>Size : ${arr.size}</p>
+                <p>Quantity: ${arr.quantity}</p>
+                <p>Price: ${arr.price}</p>
+                <p>Subtotal: ${arr.total}</p>
+                <div>
+                </div>
+                </div>`
+                        })}
+                        <p>Shipping cost: 4.99</p>
+                        <p>Total: ${total}</p>
+                        <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
+                        </div>`,
   }
   sgMail
     .send(msg)
     .then(async () => {
       const cartToBeDeleted = await cartModel.findByIdAndDelete(id)
+      const orderAddressToBeDeleted = await orderAddressModel.findByIdAndDelete(
+        orderId,
+      )
       res.send('Email sent')
     })
     .catch((error) => {
@@ -121,6 +126,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
   const { id } = req.body
 
   const cart = await cartModel.findById(id)
+
   newSubTotal = cart.products
     .map((item) => item.total)
     .reduce((acc, next) => acc + next)
@@ -131,24 +137,24 @@ router.post('/transactional-email-to-sales', async (req, res) => {
     from: 'info@johnpaulstephen.com',
     subject: 'New order for John Paul Stephen',
     html: `<div>
-        <h2>There's a new order</h2> 
-        <h2>These are the new order details</h2>
-            ${cart.products.map((arr) => {
-              return `<div> 
-    <img src=${arr.image} style="width:50%; height:50%;"></img>
-    <p>Product name : ${arr.name}</p>
-    <p>Size : ${arr.size}</p>
-    <p>Quantity: ${arr.quantity}</p>
-    <p>Price: ${arr.price}</p>
-    <p>Subtotal: ${arr.total}</p>
-    <div>
-    </div>
-    </div>`
-            })}
-            <p>Shipping cost: 4.99</p>
-            <p>Total: ${total}</p>
-            <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
-            </div>`,
+          <h2>There's a new order</h2>
+          <h2>These are the new order details</h2>
+              ${cart.products.map((arr) => {
+                return `<div>
+      <img src=${arr.image} style="width:50%; height:50%;"></img>
+      <p>Product name : ${arr.name}</p>
+      <p>Size : ${arr.size}</p>
+      <p>Quantity: ${arr.quantity}</p>
+      <p>Price: ${arr.price}</p>
+      <p>Subtotal: ${arr.total}</p>
+      <div>
+      </div>
+      </div>`
+              })}
+              <p>Shipping cost: 4.99</p>
+              <p>Total: ${total}</p>
+              <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
+              </div>`,
   }
   sgMail
     .send(msg)
