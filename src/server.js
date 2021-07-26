@@ -19,6 +19,7 @@ const port = process.env.PORT || 3003
 
 // server.use(bodyParser.urlencoded({ extended: false }))
 // server.use(bodyParser.json())
+
 server.use(cors())
 server.use(express.urlencoded({ extended: false }))
 server.use(express.json())

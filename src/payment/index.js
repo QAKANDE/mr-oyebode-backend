@@ -1,7 +1,5 @@
 const router = require('express').Router()
-const stripe = require('stripe')(
-    'sk_test_51HrjVqFcebO7I650cg7qAO3LQ8zMTuIbIrsmN4e7G6bF5De1LYaibXReF99xrERIFKNPPCJNERjPH5ARrOXsSTDw00lzJ53cGu',
-)
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
 const fetch = require('node-fetch')
 const orderAddressModel = require('./schema')
 const objectId = require('mongodb').ObjectID
@@ -9,6 +7,7 @@ const cartModel = require('../cart/schema')
 const guestModel = require('../cart/idModel')
 var mongoose = require('mongoose')
 var request = require('request')
+const stripeModel = require('./StripeSchema')
 var PAYPAL_API = 'https://api-m.sandbox.paypal.com/'
 
 router.post('/order-address', async(req, res) => {
@@ -121,80 +120,80 @@ router.post('/send-royal-mail-order', async(req, res) => {
     }
 })
 
-router.post('/my-api/create-payment/', function(req, res) {
-    const { total } = req.body
+// router.post('/my-api/create-payment/', function(req, res) {
+//         const { total } = req.body
 
-    request.post(
-        PAYPAL_API + '/v1/payments/payment', {
-            auth: {
-                user: process.env.PAYPAL_CLIENT_ID,
-                pass: process.env.PAYPAL_SECRET_KEY,
-            },
-            body: {
-                intent: 'sale',
-                payer: {
-                    payment_method: 'paypal',
-                },
-                transactions: [{
-                    amount: {
-                        total: total,
-                        currency: 'GBP',
-                    },
-                }, ],
-                redirect_urls: {
-                    return_url: 'www.johnpaulstephen.com/order-confirmed',
-                    cancel_url: 'www.johnpaulstephen.com/order-confirmed',
-                },
-            },
-            json: true,
-        },
-        function(err, response) {
-            if (err) {
-                console.error(err)
-                return res.sendStatus(500)
-            } else {
-                res.json({
-                    id: response.body.id,
-                })
-            }
-        },
-    )
-})
-router.post('/my-api/execute-payment/', function(req, res) {
-    // 2. Get the payment ID and the payer ID from the request body.
-    var paymentID = req.body.paymentID
-    var payerID = req.body.payerID
-    const total = req.body.total
-        // 3. Call /v1/payments/payment/PAY-XXX/execute to finalize the payment.
-    request.post(
-        PAYPAL_API + '/v1/payments/payment/' + paymentID + '/execute', {
-            auth: {
-                user: process.env.PAYPAL_CLIENT_ID,
-                pass: process.env.PAYPAL_SECRET_KEY,
-            },
-            body: {
-                payer_id: payerID,
-                transactions: [{
-                    amount: {
-                        total: total,
-                        currency: 'GBP',
-                    },
-                }, ],
-            },
-            json: true,
-        },
-        function(err, response) {
-            if (err) {
-                console.error(err)
-                return res.sendStatus(500)
-            }
-            // 4. Return a success response to the client
-            res.json({
-                status: 'success',
-            })
-        },
-    )
-})
+//         request.post(
+//             PAYPAL_API + '/v1/payments/payment', {
+//                 auth: {
+//                     user: process.env.PAYPAL_CLIENT_ID,
+//                     pass: process.env.PAYPAL_SECRET_KEY,
+//                 },
+//                 body: {
+//                     intent: 'sale',
+//                     payer: {
+//                         payment_method: 'paypal',
+//                     },
+//                     transactions: [{
+//                         amount: {
+//                             total: total,
+//                             currency: 'GBP',
+//                         },
+//                     }, ],
+//                     redirect_urls: {
+//                         return_url: 'www.johnpaulstephen.com/order-confirmed',
+//                         cancel_url: 'www.johnpaulstephen.com/order-confirmed',
+//                     },
+//                 },
+//                 json: true,
+//             },
+//             function(err, response) {
+//                 if (err) {
+//                     console.error(err)
+//                     return res.sendStatus(500)
+//                 } else {
+//                     res.json({
+//                         id: response.body.id,
+//                     })
+//                 }
+//             },
+//         )
+//     })
+// router.post('/my-api/execute-payment/', function(req, res) {
+//     // 2. Get the payment ID and the payer ID from the request body.
+//     var paymentID = req.body.paymentID
+//     var payerID = req.body.payerID
+//     const total = req.body.total
+//         // 3. Call /v1/payments/payment/PAY-XXX/execute to finalize the payment.
+//     request.post(
+//         PAYPAL_API + '/v1/payments/payment/' + paymentID + '/execute', {
+//             auth: {
+//                 user: process.env.PAYPAL_CLIENT_ID,
+//                 pass: process.env.PAYPAL_SECRET_KEY,
+//             },
+//             body: {
+//                 payer_id: payerID,
+//                 transactions: [{
+//                     amount: {
+//                         total: total,
+//                         currency: 'GBP',
+//                     },
+//                 }, ],
+//             },
+//             json: true,
+//         },
+//         function(err, response) {
+//             if (err) {
+//                 console.error(err)
+//                 return res.sendStatus(500)
+//             }
+//             // 4. Return a success response to the client
+//             res.json({
+//                 status: 'success',
+//             })
+//         },
+//     )
+// })
 
 // router.post('/checkout', async function(req, res) {
 //     function getAmzDate(dateStr) {
@@ -309,66 +308,102 @@ router.post('/my-api/execute-payment/', function(req, res) {
 //     console.log(details)
 // })
 
-// router.post('/create-product-price', async(req, res) => {
-//     const { productName, productPrice, productId, quantity, userId } = req.body
+router.post('/create-product-price', async(req, res) => {
+    const { productName, productPrice, productId, quantity, userId } = req.body
 
-//     const product = await stripe.products.create({ name: productName })
-//     const price = await stripe.prices.create({
-//         unit_amount: productPrice,
-//         currency: 'gbp',
-//         product: product.id,
-//     })
+    const product = await stripe.products.create({ name: productName })
+    const price = await stripe.prices.create({
+        unit_amount: productPrice,
+        currency: 'gbp',
+        product: product.id,
+    })
 
-//     const priceId = price.id
-//     const existingStripe = await stripeModel.findOne({
-//         userId,
-//     })
-//     if (existingStripe) {
-//         let itemIndex = existingStripe.products.findIndex(
-//             (p) => p.productId === productId,
-//         )
-//         if (itemIndex > -1) {
-//             let priceItem = existingStripe.products[itemIndex]
-//             priceItem.quantity = quantity
-//             existingStripe.products[itemIndex] = priceItem
-//         } else {
-//             existingStripe.products.push({
-//                 productId,
-//                 priceId,
-//                 quantity,
-//             })
-//         }
-//         await existingStripe.save()
-//         return res.status(200).send('Created')
-//     } else {
-//         const newStripe = await stripeModel.create({
-//             userId,
-//             products: [{ productId, priceId, quantity }],
-//         })
-//         return res.status(200).send('Created')
-//     }
-// })
-// router.post('/create-checkout-session', async(req, res) => {
-//     try {
-//         const { userId } = req.body
-//         const stripes = await stripeModel.findOne({ userId })
-//         const arr = []
-//         for (let i = 0; i < stripes.products.length; i++) {
-//             let priceDetails = {
-//                 price: stripes.products[i].priceId,
-//                 quantity: stripes.products[i].quantity,
-//             }
-//             arr.push(priceDetails)
-//         }
-//         const session = await stripe.checkout.sessions.create({
-//             success_url: 'http://localhost:3000/paymentsuccessful',
-//             cancel_url: 'https://example.com/cancel',
-//             payment_method_types: ['card'],
-//             line_items: arr,
-//             mode: 'payment',
-//         })
+    const priceId = price.id
+    const existingStripe = await stripeModel.findOne({
+        userId,
+    })
+    if (existingStripe) {
+        let itemIndex = existingStripe.products.findIndex(
+            (p) => p.productId === productId,
+        )
+        if (itemIndex > -1) {
+            let priceItem = existingStripe.products[itemIndex]
+            priceItem.quantity = quantity
+            existingStripe.products[itemIndex] = priceItem
+        } else {
+            existingStripe.products.push({
+                productId,
+                priceId,
+                quantity,
+            })
+        }
+        await existingStripe.save()
+        return res.status(200).send('Created')
+    } else {
+        const newStripe = await stripeModel.create({
+            userId,
+            products: [{ productId, priceId, quantity }],
+        })
+        return res.status(200).send('Created')
+    }
+})
+router.post('/create-checkout-session', async(req, res) => {
+        try {
+            const { userId } = req.body
+            const stripes = await stripeModel.findOne({ userId })
 
-//         res.json({ id: session.id })
+            const arr = []
+                // for (let i = 0; i < stripes.products.length; i++) {
+                //     let priceDetails = {
+                //         price: stripes.products[i].priceId,
+                //         quantity: stripes.products[i].quantity,
+                //     }
+                //     arr.push(priceDetails)
+                // }
+
+            stripes.products.map((str) => {
+                return arr.push({ price: str.priceId, quantity: str.quantity })
+            })
+
+            const session = await stripe.checkout.sessions.create({
+                success_url: '/order-confirmed',
+                cancel_url: '/cart',
+                shipping_rates: ['shr_1JHVGTFcebO7I650ilMDyZYf'],
+                shipping_address_collection: {
+                    allowed_countries: ['GB'],
+                },
+                payment_method_types: ['card'],
+                line_items: arr,
+                mode: 'payment',
+            })
+
+            res.json({
+                url: session.url,
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    })
+    // router.post('/create-checkout-session', async(req, res) => {
+    //     const YOUR_DOMAIN = 'http://localhost:3000/'
+    //     const { cartId } = req.body
+    //     try {
+    //         const cart = await cartModel.findById(cartId)
+    //         console.log(cart)
+
+//         // const session = await stripe.checkout.sessions.create({
+//         //     payment_method_types: ['card'],
+//         //     line_items: [{
+//         //         // TODO: replace this with the `price` of the product you want to sell
+//         //         price: '{{PRICE_ID}}',
+//         //         quantity: 1,
+//         //     }, ],
+//         //     mode: 'payment',
+//         //     success_url: `${YOUR_DOMAIN}/order-confirmed`,
+//         //     cancel_url: `${YOUR_DOMAIN}/cart`,
+//         // })
+//         // console.log(session)
+//         // res.redirect(303, session.url)
 //     } catch (error) {
 //         console.log(error)
 //     }

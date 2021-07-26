@@ -6,6 +6,7 @@ const cloudinary = require('cloudinary').v2
 const streamifier = require('streamifier')
 const configuration = require('../services/middlewares/cloudinary')
 const { v4: uuidv4 } = require('uuid')
+const colorModel = require('./colorCodeSchema')
 
 const fileUpload = multer()
 
@@ -140,6 +141,28 @@ router.post('/update-color-size', async(req, res) => {
     } catch (error) {
         console.log(error)
     }
+})
+
+router.post('/check-stock', async(req, res) => {
+    try {
+        const { productId } = req.body
+        const findProduct = await productModel.findById(productId)
+        const filt = findProduct.stock.filter((fil) => fil.color === 'White')
+        const size = filt[0].sizes.filter((size) => size.size === 'XXL')
+        res.send(size)
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+router.post('/color-code-image', async(req, res) => {
+    const { title, url, color } = req.body
+    const colors = await colorModel.find()
+    const find = colors.filter(
+        (fil) => fil.title === title && fil.colorCode === color,
+    )
+
+    res.send(find[0].url)
 })
 
 router.post(
