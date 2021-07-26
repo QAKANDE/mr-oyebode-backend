@@ -338,6 +338,7 @@ router.post('/create-product-price', async(req, res) => {
             })
         }
         await existingStripe.save()
+
         return res.status(200).send('Created')
     } else {
         const newStripe = await stripeModel.create({
@@ -348,78 +349,56 @@ router.post('/create-product-price', async(req, res) => {
     }
 })
 router.post('/create-checkout-session', async(req, res) => {
-        try {
-            const { userId } = req.body
-            const stripes = await stripeModel.findOne({ userId })
-
-            const arr = []
-                // for (let i = 0; i < stripes.products.length; i++) {
-                //     let priceDetails = {
-                //         price: stripes.products[i].priceId,
-                //         quantity: stripes.products[i].quantity,
-                //     }
-                //     arr.push(priceDetails)
-                // }
-
-            stripes.products.map((str) => {
-                return arr.push({ price: str.priceId, quantity: str.quantity })
-            })
-
-            const session = await stripe.checkout.sessions.create({
-                success_url: '/order-confirmed',
-                cancel_url: '/cart',
-                shipping_rates: ['shr_1JHVGTFcebO7I650ilMDyZYf'],
-                shipping_address_collection: {
-                    allowed_countries: ['GB'],
-                },
-                payment_method_types: ['card'],
-                line_items: arr,
-                mode: 'payment',
-            })
-
-            res.json({
-                url: session.url,
-            })
-        } catch (error) {
-            console.log(error)
-        }
-    })
-    // router.post('/create-checkout-session', async(req, res) => {
-    //     const YOUR_DOMAIN = 'http://localhost:3000/'
-    //     const { cartId } = req.body
-    //     try {
-    //         const cart = await cartModel.findById(cartId)
-    //         console.log(cart)
-
-//         // const session = await stripe.checkout.sessions.create({
-//         //     payment_method_types: ['card'],
-//         //     line_items: [{
-//         //         // TODO: replace this with the `price` of the product you want to sell
-//         //         price: '{{PRICE_ID}}',
-//         //         quantity: 1,
-//         //     }, ],
-//         //     mode: 'payment',
-//         //     success_url: `${YOUR_DOMAIN}/order-confirmed`,
-//         //     cancel_url: `${YOUR_DOMAIN}/cart`,
-//         // })
-//         // console.log(session)
-//         // res.redirect(303, session.url)
-//     } catch (error) {
-//         console.log(error)
-//     }
-// })
-
-router.delete('/delete-payment-price-and-cart', async(req, res) => {
     try {
         const { userId } = req.body
-        const stripePrices = await stripeModel.findOne({ userId })
-        const cart = await cartModel.findOne({ userId })
-        const deleteStripe = await stripeModel.findByIdAndDelete(stripePrices._id)
-        const deleteCart = await cartModel.findByIdAndDelete(cart._id)
-        const deleteGuestToken = await guestModel.findByIdAndDelete(userId)
-        res.send('Deleted')
+        const stripes = await stripeModel.findOne({ userId })
+
+        const arr = []
+        stripes.products.map((str) => {
+            return arr.push({ price: str.priceId, quantity: str.quantity })
+        })
+
+        const session = await stripe.checkout.sessions.create({
+            success_url: '/order-confirmed',
+            cancel_url: '/cart',
+            shipping_rates: ['shr_1JHVGTFcebO7I650ilMDyZYf'],
+            shipping_address_collection: {
+                allowed_countries: ['GB'],
+            },
+            payment_method_types: ['card'],
+            line_items: arr,
+            mode: 'payment',
+        })
+
+        res.json({
+            url: session.url,
+        })
     } catch (error) {
         console.log(error)
     }
 })
+
+router.delete('/delete-stripe-price', async(req, res) => {
+    try {
+        const { userId, productId } = req.body
+        const stripePrices = await stripeModel.findOne({ userId })
+
+        const test = stripeModel.findOneAndUpdate({ _id: stripePrices._id }, {
+                $pull: { products: { productId: productId } },
+            },
+            false,
+            function(err, data) {
+                if (err) {
+                    console.log(err)
+                } else {
+                    res.send(data)
+                }
+            },
+        )
+    } catch (error) {
+        console.log(error)
+    }
+})
+
+router.delete('/delete')
 module.exports = router
