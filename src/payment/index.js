@@ -361,7 +361,7 @@ router.post('/create-checkout-session', async(req, res) => {
         const session = await stripe.checkout.sessions.create({
             success_url: 'https://www.johnpaulstephen.com/order-confirmed',
             cancel_url: 'https://www.johnpaulstephen.com/cart',
-            shipping_rates: ['shr_1JHVGTFcebO7I650ilMDyZYf'],
+            shipping_rates: [process.env.STRIPE_SHIPPING_KEY],
             shipping_address_collection: {
                 allowed_countries: ['GB'],
             },
