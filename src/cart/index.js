@@ -5,6 +5,7 @@ const productModel = require('../products/schema')
 const orderAddressModel = require('../payment/schema')
 const objectId = require('mongodb').ObjectID
 const { findByIdAndUpdate } = require('./schema')
+const stripeModel = require('../payment/StripeSchema')
 
 const idsModel = require('./idModel')
 var mongoose = require('mongoose')
@@ -75,7 +76,7 @@ router.get('/guest/guest-token', async(req, res) => {
 })
 
 router.post('/transactional-email-customer', async(req, res) => {
-            const { customerEmail, id, orderId } = req.body
+            const { customerEmail, id, orderId, userId } = req.body
 
             const cart = await cartModel.findById(id)
 
@@ -115,6 +116,7 @@ router.post('/transactional-email-customer', async(req, res) => {
       const orderAddressToBeDeleted = await orderAddressModel.findByIdAndDelete(
         orderId,
       )
+      const deleteStripe = await stripeModel.findOneAndDelete({ userId })
       res.send('Email sent')
     })
     .catch((error) => {
