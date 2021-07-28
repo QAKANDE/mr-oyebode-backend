@@ -310,42 +310,54 @@ router.post('/send-royal-mail-order', async(req, res) => {
 
 router.post('/create-product-price', async(req, res) => {
     const { productName, productPrice, productId, quantity, userId } = req.body
-
-    const product = await stripe.products.create({ name: productName })
-    const price = await stripe.prices.create({
-        unit_amount: productPrice,
-        currency: 'gbp',
-        product: product.id,
-    })
-
-    const priceId = price.id
-    const existingStripe = await stripeModel.findOne({
-        userId,
-    })
-    if (existingStripe) {
-        let itemIndex = existingStripe.products.findIndex(
-            (p) => p.productId === productId,
-        )
-        if (itemIndex > -1) {
-            let priceItem = existingStripe.products[itemIndex]
-            priceItem.quantity = quantity
-            existingStripe.products[itemIndex] = priceItem
-        } else {
-            existingStripe.products.push({
-                productId,
-                priceId,
-                quantity,
-            })
-        }
-        await existingStripe.save()
-
-        return res.status(200).send('Created')
-    } else {
-        const newStripe = await stripeModel.create({
+    try {
+        const existingStripe = await stripeModel.findOne({
             userId,
-            products: [{ productId, priceId, quantity }],
         })
-        return res.status(200).send('Created')
+
+        if (existingStripe) {
+            let itemIndex = existingStripe.products.findIndex(
+                (p) => p.productId === productId,
+            )
+            if (itemIndex > -1) {
+                let priceItem = existingStripe.products[itemIndex]
+                priceItem.quantity = quantity
+                existingStripe.products[itemIndex] = priceItem
+            } else {
+                const product = await stripe.products.create({ name: productName })
+                const price = await stripe.prices.create({
+                    unit_amount: productPrice,
+                    currency: 'gbp',
+                    product: product.id,
+                })
+
+                const priceId = price.id
+                existingStripe.products.push({
+                    productId,
+                    priceId,
+                    quantity,
+                })
+            }
+            await existingStripe.save()
+
+            return res.status(200).send('Created')
+        } else {
+            const product = await stripe.products.create({ name: productName })
+            const price = await stripe.prices.create({
+                unit_amount: productPrice,
+                currency: 'gbp',
+                product: product.id,
+            })
+
+            const priceId = price.id
+            const newStripe = await stripeModel.create({
+                userId,
+                products: [{ productId, priceId, quantity }],
+            })
+            return res.status(200).send('Created')
+        }
+    } catch (error) {
+        console.log(error)
     }
 })
 router.post('/create-checkout-session', async(req, res) => {
