@@ -400,5 +400,4 @@ router.delete('/delete-stripe-price', async(req, res) => {
     }
 })
 
-router.delete('/delete')
 module.exports = router
