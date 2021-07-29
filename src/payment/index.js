@@ -89,7 +89,7 @@ router.post('/send-royal-mail-order', async(req, res) => {
                         },
                         orderDate: new Date(),
                         subtotal: findAddress.subTotal,
-                        shippingCostCharged: 4.99,
+                        shippingCostCharged: 4.95,
                         total: findAddress.total,
                         currencyCode: 'GBP',
                         postageDetails: {

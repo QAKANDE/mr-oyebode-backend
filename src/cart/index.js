@@ -83,7 +83,7 @@ router.post('/transactional-email-customer', async(req, res) => {
             newSubTotal = cart.products
                 .map((item) => item.total)
                 .reduce((acc, next) => acc + next)
-            const total = newSubTotal + 4.99
+            const total = newSubTotal + 4.95
 
             const msg = {
                     to: customerEmail,
@@ -94,9 +94,10 @@ router.post('/transactional-email-customer', async(req, res) => {
                     <h2>These are your order details</h2>
                         ${cart.products.map((arr) => {
                           return `<div>
-                <img src=${arr.image} style="width:50%; height:50%;"></img>
+                <img src=${arr.image} style="width:30%; height:30%;"></img>
                 <p>Product name : ${arr.name}</p>
                 <p>Size : ${arr.size}</p>
+                <div style="background-color:${arr.color};width:50px;height:50px;"></div>
                 <p>Quantity: ${arr.quantity}</p>
                 <p>Price: ${arr.price}</p>
                 <p>Subtotal: ${arr.total}</p>
@@ -104,7 +105,7 @@ router.post('/transactional-email-customer', async(req, res) => {
                 </div>
                 </div>`
                         })}
-                        <p>Shipping cost: 4.99</p>
+                        <p>Shipping cost: 4.95</p>
                         <p>Total: ${total.toFixed(2)}</p>
                         <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
                         </div>`,
@@ -117,6 +118,7 @@ router.post('/transactional-email-customer', async(req, res) => {
         orderId,
       )
       const deleteStripe = await stripeModel.findOneAndDelete({ userId })
+      console.log('here')
       res.send('Email sent')
     })
     .catch((error) => {
@@ -143,9 +145,10 @@ router.post('/transactional-email-to-sales', async (req, res) => {
           <h2>These are the new order details for JPS</h2>
               ${cart.products.map((arr) => {
                 return `<div>
-      <img src=${arr.image} style="width:50%; height:50%;"></img>
+      <img src=${arr.image} style="width:30%; height:30%;"></img>
       <p>Product name : ${arr.name}</p>
       <p>Size : ${arr.size}</p>
+      <div style="background-color:${arr.color};width:50px;height:50px;"></div>
       <p>Quantity: ${arr.quantity}</p>
       <p>Price: ${arr.price}</p>
       <p>Subtotal: ${arr.total}</p>
@@ -153,7 +156,7 @@ router.post('/transactional-email-to-sales', async (req, res) => {
       </div>
       </div>`
               })}
-              <p>Shipping cost: 4.99</p>
+              <p>Shipping cost: 4.95</p>
               <p>Total: ${total.toFixed(2)}</p>
               <img style="width:50%; height:50%;" src="https://res.cloudinary.com/quadri/image/upload/v1626724740/JOHN_PAUL_STEPHEN_2_LR_BLACK_rfiw11.png"></img>
               </div>`,
