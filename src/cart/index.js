@@ -12,84 +12,95 @@ var mongoose = require('mongoose')
 const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-router.get('/:userId', async(req, res) => {
-    const userId = req.params.userId
-    const cartperUser = await cartModel.findOne({ userId })
-    if (cartperUser) {
-        res.send(cartperUser)
-    } else {
-        res.send('No Items In Cart')
-    }
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId
+  const cartperUser = await cartModel.findOne({ userId })
+  if (cartperUser) {
+    res.send(cartperUser)
+  } else {
+    res.send('No Items In Cart')
+  }
 })
-
-router.post('/cart/:userId', async(req, res) => {
-    const { productId, quantity, name, price } = req.body
-    const total = parseInt(price * req.body.quantity)
-    const userId = req.params.userId
-
-    try {
-        let cart = await cartModel.findOne({ userId })
-
-        if (cart) {
-            //cart exists for user
-            let itemIndex = cart.products.findIndex((p) => p.productId == productId)
-
-            if (itemIndex > -1) {
-                //product exists in the cart, update the quantity
-                let productItem = cart.products[itemIndex]
-                productItem.quantity++
-                    newTotal = parseInt(productItem.quantity * productItem.price)
-                productItem.total = newTotal
-                cart.products[itemIndex] = productItem
-            } else {
-                //product does not exists in cart, add new item
-                cart.products.push({ productId, quantity, name, price, total })
-            }
-            cart = await cart.save()
-            newSubTotal = cart.products
-                .map((item) => item.total)
-                .reduce((acc, next) => acc + next)
-            res.json({
-                cart,
-                SubTotal: newSubTotal,
-            })
-        } else {
-            //no cart for user, create new cart
-            const newCart = await cartModel.create({
-                userId,
-                products: [{ productId, quantity, name, price, total }],
-            })
-
-            return res.status(201).send(newCart)
-        }
-    } catch (err) {
-        console.log(err)
-        res.status(500).send('Something went wrong')
-    }
-})
-
-router.get('/guest/guest-token', async(req, res) => {
-    const translator = short()
+router.get('/cart-count/:userId', async (req, res) => {
+  const userId = req.params.userId
+  const cartperUser = await cartModel.findOne({ userId })
+  if (cartperUser) {
     res.json({
-        id: translator.new(),
+      cart: cartperUser,
     })
+  } else {
+    res.send('No Items In Cart')
+  }
 })
 
-router.post('/transactional-email-customer', async(req, res) => {
-            const { customerEmail, id, orderId, userId } = req.body
+router.post('/cart/:userId', async (req, res) => {
+  const { productId, quantity, name, price } = req.body
+  const total = parseInt(price * req.body.quantity)
+  const userId = req.params.userId
 
-            const cart = await cartModel.findById(id)
+  try {
+    let cart = await cartModel.findOne({ userId })
 
-            newSubTotal = cart.products
-                .map((item) => item.total)
-                .reduce((acc, next) => acc + next)
-            const total = newSubTotal + 4.95
+    if (cart) {
+      //cart exists for user
+      let itemIndex = cart.products.findIndex((p) => p.productId == productId)
 
-            const msg = {
-                    to: customerEmail,
-                    from: 'info@johnpaulstephen.com',
-                    subject: 'Thank you for your order',
-                    html: `<div>
+      if (itemIndex > -1) {
+        //product exists in the cart, update the quantity
+        let productItem = cart.products[itemIndex]
+        productItem.quantity++
+        newTotal = parseInt(productItem.quantity * productItem.price)
+        productItem.total = newTotal
+        cart.products[itemIndex] = productItem
+      } else {
+        //product does not exists in cart, add new item
+        cart.products.push({ productId, quantity, name, price, total })
+      }
+      cart = await cart.save()
+      newSubTotal = cart.products
+        .map((item) => item.total)
+        .reduce((acc, next) => acc + next)
+      res.json({
+        cart,
+        SubTotal: newSubTotal,
+      })
+    } else {
+      //no cart for user, create new cart
+      const newCart = await cartModel.create({
+        userId,
+        products: [{ productId, quantity, name, price, total }],
+      })
+
+      return res.status(201).send(newCart)
+    }
+  } catch (err) {
+    console.log(err)
+    res.status(500).send('Something went wrong')
+  }
+})
+
+router.get('/guest/guest-token', async (req, res) => {
+  const translator = short()
+  res.json({
+    id: translator.new(),
+  })
+})
+
+router.post('/transactional-email-customer', async (req, res) => {
+  const { customerEmail, id, orderId, userId } = req.body
+
+  const cart = await cartModel.findById(id)
+
+  newSubTotal = cart.products
+    .map((item) => item.total)
+    .reduce((acc, next) => acc + next)
+  const total = newSubTotal + 4.95
+
+  const msg = {
+    to: customerEmail,
+    from: 'info@johnpaulstephen.com',
+    subject: 'Thank you for your order',
+    html: `<div>
                     <h2>Thank you for your order</h2>
                     <h2>These are your order details</h2>
                         ${cart.products.map((arr) => {
@@ -118,7 +129,6 @@ router.post('/transactional-email-customer', async(req, res) => {
         orderId,
       )
       const deleteStripe = await stripeModel.findOneAndDelete({ userId })
-      console.log('here')
       res.send('Email sent')
     })
     .catch((error) => {
