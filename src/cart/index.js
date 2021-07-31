@@ -29,7 +29,7 @@ router.get('/cart-count/:userId', async (req, res) => {
       cart: cartperUser,
     })
   } else {
-    res.send('No Items In Cart')
+    res.json({ cart: 'No items in cart' })
   }
 })
 
